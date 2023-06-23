@@ -1,4 +1,4 @@
-SCREEN_WIDTH = 720
+SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
 FIELD_WIDTH = 10
@@ -15,7 +15,7 @@ NEXT_DISPLAY_LIMIT = 5     # 넥스트 큐 표시 개수
 GHOST_PIECE_DISPLAY = True # 고스트피스 표시 여부
 HOLDABLE_DISPLAY = True    # 홀드 불가 시 음영 여부
 
-FPS = 25   # 60, 75, 120, 144, 165, 240, inf
+FPS = 165   # 60, 75, 120, 144, 165, 240, inf
 FPS_RATIO = FPS / 60
 
 DAS = 10    # 반복 전 지연 1 ~ 20 Frame 60프레임 기준 ((1000 / 60) * (DAS * 현재 FPS / 60))

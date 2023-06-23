@@ -1,4 +1,5 @@
 import pygame
+import os
 import numpy as np
 from settings import *
 from support import *
@@ -21,9 +22,9 @@ class Ui:
 
         self.ghost_piece_img = import_folder('./assets/img/ghost_piece')
         self.ghost_piece_img_index = 0
-
-        self.window_bar_font = pygame.font.SysFont("gulim", 12)
-        self.score_board_font = pygame.font.SysFont("gulim", 24)
+        print(os.path.abspath('./assets/font/7SEGLED_TTM000.ttf'))
+        self.window_bar_font = pygame.font.Font('./assets/font/gulim.ttc', 12)
+        self.score_board_font = pygame.font.Font('./assets/font/7SEGLED_TTM000.ttf', 32)
         
     def field_window(self):
         tetromino = self.tetris.tetromino
@@ -225,7 +226,7 @@ class Ui:
         # -------- Create Surface --------
 
         surface = pygame.Surface((5 * PIECE_SIZE + EXTRA_SPACE * 2, \
-                                  3 * 24 + EXTRA_SPACE * 4), pygame.SRCALPHA)
+                                  3 * 32 + 16 * 2 + EXTRA_SPACE * 2), pygame.SRCALPHA)
         surface_rect = surface.get_rect()
         
 
@@ -241,17 +242,17 @@ class Ui:
         # Text
         info_list = [self.tetris.level, self.tetris.removed_lines, self.tetris.score]
         for i, info in enumerate(info_list):
-            info_str = format(int(info), ',')
+            info_str = str(info)
     
-            info_box = pygame.Surface((len(info_str) * 16, 24), pygame.SRCALPHA)
+            info_box = pygame.Surface((len(info_str) * 16, 32), pygame.SRCALPHA)
             info_box_rect = info_box.get_rect()
-            pygame.draw.rect(info_box, (255, 0, 0), info_box_rect, 1)
+            # pygame.draw.rect(info_box, (255, 0, 0), info_box_rect, 1)
             
-            info_text = self.window_bar_font.render(info_str, 1, pygame.Color(255, 255, 255))
+            info_text = self.score_board_font.render(info_str, 1, pygame.Color(255, 255, 255))
 
             info_box.blit(info_text, (0, 0))
             score_board_surface.blit(info_box, (score_board_rect.right - EXTRA_SPACE - info_box_rect.width, \
-                                                EXTRA_SPACE + (24+EXTRA_SPACE) * i))
+                                                EXTRA_SPACE + (32+16) * i))
         
         # -------- Merge Surface --------
 
