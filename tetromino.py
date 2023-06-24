@@ -9,10 +9,13 @@ class Tetromino:
         self.rotate_code = ['0', 'R', '2', 'L']
         self.rotate_index = 0
         self.piece_array = SHAPE[self.tetris.hand]
-        self.soft_drop_times = 0
-        self.drop_times = 0.9
-        self.lock_delay = 30
-        self.rand_times = 0
+        self.soft_drop_time = 0
+        self.soft_drop_last_time = self.tetris.current_time
+        self.drop_time = 0
+        self.drop_last_time = self.tetris.current_time
+        self.rand_time = 0
+        self.rand_last_time = self.tetris.current_time
+        self.lock_delay = 500
         self.floor_kick_limit = 15
         self.floor_kick_times = 0
         self.last_action = 'None'
@@ -39,9 +42,9 @@ class Tetromino:
         drop = False
         if not self.is_rand():
             if SDF != 0:
-                self.soft_drop_times += SDF / 20 / FPS_RATIO
-                while self.soft_drop_times >= 1:
-                    self.soft_drop_times -= 1
+                self.soft_drop_time = self.tetris.current_time - self.soft_drop_last_time
+                if self.soft_drop_time >= 1000 / 3 / SDF:
+                    self.soft_drop_last_time = self.tetris.current_time
                     self.move('down')
                     drop = True
                     self.tetris.score += 1
@@ -129,28 +132,31 @@ class Tetromino:
             self.lock_down()
             
         else:
-            self.rand_times = 0
+            self.rand_last_time = self.tetris.current_time
     
     def auto_drop(self):
         if self.tetris.gravity != 0:
-            self.drop_times += self.tetris.gravity / FPS_RATIO
-            while self.drop_times >= 1 if self.tetris.gravity != 0 else True:
-                self.drop_times -= 1
-                self.move('down')
+            self.drop_time = self.tetris.current_time - self.drop_last_time
+            if self.drop_time >= 1000 / (self.tetris.gravity * 60):
+                self.drop_last_time = self.tetris.current_time
+                for _ in range(int(self.drop_time // (1000 / (self.tetris.gravity * 60)))):
+                    if self.move('down') == False:
+                        break
         else:
             while not self.is_rand():
                 self.move('down')
 
     def lock_down(self):
-        self.rand_times += 60 / FPS
-        if self.rand_times >= self.lock_delay or self.floor_kick_times >= self.floor_kick_limit:
-            self.rand_times = 0
+        self.rand_time = self.tetris.current_time - self.rand_last_time
+        if self.rand_time >= self.lock_delay * 1 or self.floor_kick_times >= self.floor_kick_limit:
+            self.rand_last_time = self.tetris.current_time
+            self.rand_time = 0
             self.randing()
 
     def floor_kick(self):
         if self.floor_kick_times <= self.floor_kick_limit:
             self.floor_kick_times += 1
-            self.rand_times = 0
+            self.rand_last_time = self.tetris.current_time
     
     def randing(self):
         self.tetris.randing_sound.play()
@@ -170,6 +176,7 @@ class Tetromino:
 
         if ground_in < 1:
             self.tetris.game_over()
+            print('@@@@@')
     
         else:
             self.tetris.check_line()

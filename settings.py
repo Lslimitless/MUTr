@@ -1,5 +1,5 @@
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 720
+SCREEN_WIDTH = 1920
+SCREEN_HEIGHT = 1080
 
 FIELD_WIDTH = 10
 FIELD_HEIGHT = 20
@@ -16,11 +16,10 @@ NEXT_DISPLAY_LIMIT = 5     # 넥스트 큐 표시 개수
 GHOST_PIECE_DISPLAY = True # 고스트피스 표시 여부
 HOLDABLE_DISPLAY = True    # 홀드 불가 시 음영 여부
 
-FPS = 165   # 60, 75, 120, 144, 165, 240, inf
-FPS_RATIO = FPS / 60
+FPS = 120   # 60, 75, 120, 144, 165, 240, inf
 
-DAS = 10    # 반복 전 지연 1 ~ 20 Frame 60프레임 기준 ((1000 / 60) * (DAS * 현재 FPS / 60))
-ARR = 2     # 반복 중 지연 0 ~ 5 Frame 60프레임 기준 ((1000 / 60) * (ARR * 현재 FPS / 60))
+DAS = 170    # 반복 전 지연 1 ~ 20 Frame 60프레임 기준 ((1000 / 60) * (DAS * 현재 FPS / 60))
+ARR = 33     # 반복 중 지연 0 ~ 5 Frame 60프레임 기준 ((1000 / 60) * (ARR * 현재 FPS / 60))
 SDF = 10     # 소프트 드랍 속도 5 ~ 40, inf
 
 SHAPE = {

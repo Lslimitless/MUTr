@@ -9,13 +9,19 @@ class Ui:
         self.display_surface = pygame.display.get_surface()
         self.tetris = tetris
 
+        self.scale = 1
+
         self.bg_imgs = import_folder('dict', './assets/img/back_ground_img')
+        for key, value in self.bg_imgs.items():
+            self.bg_imgs[key] = pygame.transform.scale(value, self.display_surface.get_size())
         self.bg_img = random.choice(list(self.bg_imgs.values()))
+
         self.piece_img = import_folder('dict', './assets/img/piece')
         self.piece_bg_img = import_folder('list', './assets/img/piece_bg')
         self.ghost_piece_img = import_folder('list', './assets/img/ghost_piece')
         
         self.ghost_piece_img_index = 0
+        self.ghost_piece_last_time = 0
 
         self.window_bar_font = pygame.font.Font('./assets/font/Maplestory Bold.ttf', 12)
         self.score_board_head_font = pygame.font.Font('./assets/font/Maplestory Bold.ttf', 12)
@@ -32,12 +38,12 @@ class Ui:
 
 
         field_win_surface = pygame.Surface((FIELD_WIDTH * PIECE_SIZE + EXTRA_SPACE * 2, \
-                                               FIELD_HEIGHT * PIECE_SIZE + EXTRA_SPACE * 2), pygame.SRCALPHA)
+                                            FIELD_HEIGHT * PIECE_SIZE + EXTRA_SPACE * 2) , pygame.SRCALPHA)
         field_win_rect = field_win_surface.get_rect()
         
 
         field_surface = pygame.Surface((FIELD_WIDTH * PIECE_SIZE, \
-                                        (FIELD_HEIGHT + ADD_FIELD_HEIGHT) * PIECE_SIZE), pygame.SRCALPHA)
+                                        (FIELD_HEIGHT + ADD_FIELD_HEIGHT) * PIECE_SIZE) , pygame.SRCALPHA)
         field_rect = field_surface.get_rect()
 
         # -------- Draw on Surface --------
@@ -75,7 +81,7 @@ class Ui:
                 if col > 0:
                     img = pygame.Surface(self.piece_img[str(col)].get_size(), pygame.SRCALPHA)
                     img.blit(self.piece_img[str(col)], (0, 0))
-                    img.set_alpha(255 - 255 * (tetromino.rand_times / tetromino.lock_delay) / 2)
+                    img.set_alpha(255 - 255 * (tetromino.rand_time / tetromino.lock_delay) / 2)
                     field_surface.blit(img, \
                                       ((int(tetromino.pos.x) + col_index)*PIECE_SIZE-2, \
                                        (int(tetromino.pos.y) + row_index)*PIECE_SIZE-2))
@@ -268,7 +274,7 @@ class Ui:
     
             head_box = pygame.Surface((score_board_rect.width, head_text_size[1]), pygame.SRCALPHA)
             bg_info_box = pygame.Surface((value_text_size[0] * len(bg_info_str), value_text_size[1]), pygame.SRCALPHA)
-            info_box = pygame.Surface((value_text_size[0] * len(str(int(info))), value_text_size[1]), pygame.SRCALPHA)
+            info_box = pygame.Surface((value_text_size[0] * len(info_str), value_text_size[1]), pygame.SRCALPHA)
             
             head_box_rect = head_box.get_rect()
             bg_info_box_rect = bg_info_box.get_rect()
@@ -314,8 +320,9 @@ class Ui:
 
     def draw(self):
         # Ghost Piece Animation
-        self.ghost_piece_img_index += 1 / 6 * (60 / FPS)
+        self.ghost_piece_img_index = (self.tetris.current_time - self.ghost_piece_last_time) / 100
         if self.ghost_piece_img_index >= len(self.ghost_piece_img):
+            self.ghost_piece_last_time = self.tetris.current_time
             self.ghost_piece_img_index = 0
 
         display_size = self.display_surface.get_size()
