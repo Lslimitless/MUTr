@@ -4,6 +4,7 @@ import random
 from settings import *
 from tetromino import Tetromino
 from ui import Ui
+from support import *
 
 class Tetris:
     def __init__(self, game):
@@ -15,7 +16,7 @@ class Tetris:
         self.hand = 'empty'
         self.hold = 'empty'
         self.next_queue = []
-        self.gravity = 0.0167  # G
+        self.gravity = LEVEL_DATA[1]['g']  # G
         self.l_das = 0
         self.r_das = 0
         self.l_arr = ARR
@@ -26,25 +27,33 @@ class Tetris:
         self.score = 0
         self.removed_lines = 0
 
-        pygame.mixer.music.load('./assets/sound/bgm/HiddenCatch.mp3')
-        pygame.mixer.music.set_volume(1/100*40)
+        pygame.mixer.music.load('./assets/sound/bgm/halloweenParty.mp3')
+        pygame.mixer.music.set_volume(1/100*25)
         pygame.mixer.music.play(-1)
 
-        # self.move_sound = pygame.mixer.Sound('./assets/sound/efc/')
-        self.rotate_sound = pygame.mixer.Sound('./assets/sound/efc/Focus3.mp3')
-        self.rotate_sound.set_volume(1/100*20)
-        self.hold_swap_sound = pygame.mixer.Sound('./assets/sound/efc/Focus1.mp3')
-        self.hold_swap_sound.set_volume(1/100*30)
-        self.randing_sound = pygame.mixer.Sound('./assets/sound/efc/Focus2.mp3')
-        self.randing_sound.set_volume(1/100*40)
-        self.clear_sound = pygame.mixer.Sound('./assets/sound/efc/Select1.mp3')
-        self.clear_sound.set_volume(1/100*20)
-        self.clear_quad_sound = pygame.mixer.Sound('./assets/sound/efc/Selcet2.mp3')
-        self.clear_quad_sound.set_volume(1/100*40)
-        self.clear_tspin_sound = pygame.mixer.Sound('./assets/sound/efc/AchievmentComplete.mp3')
-        self.clear_tspin_sound.set_volume(1/100*20)
-        self.all_clear_sound = pygame.mixer.Sound('./assets/sound/efc/GradeUp.mp3')
-        self.all_clear_sound.set_volume(1/100*20)
+        # self.move_sound = pygame.mixer.Sound('./assets/sound/efc/handling/5.mp3')
+        # self.move_sound.set_volume(1/100*20)
+        self.move_sound = import_sound('./assets/sound/efc/handling/5.mp3', volume=20)
+        self.drop_sound = import_sound('./assets/sound/efc/handling/5.mp3', volume=20)
+        self.rotate_sound = import_sound('./assets/sound/efc/handling/Focus3.mp3', volume=20)
+        self.hold_swap_sound = import_sound('./assets/sound/efc/handling/Focus1.mp3', volume=25)
+        self.randing_sound = import_sound('./assets/sound/efc/handling/Focus2.mp3', volume=40)
+
+        self.clear_sound = import_sound('./assets/sound/efc/clear/Select1.mp3', volume=20)
+        self.clear_quad_sound = import_sound('./assets/sound/efc/clear/Selcet2.mp3',volume=40)
+        self.clear_tspin_sound = import_sound('./assets/sound/efc/clear/AchievmentComplete.mp3',volume=20)
+        self.all_clear_sound = import_sound('./assets/sound/efc/clear/GradeUp.mp3',volume=20)
+
+        self.combo_2_sound = pygame.mixer.Sound('./assets/sound/efc/combo/EnchantStar2.mp3')
+        self.combo_2_sound.set_volume(1/100*20)
+        self.combo_3_sound = pygame.mixer.Sound('./assets/sound/efc/combo/EnchantStar3.mp3')
+        self.combo_3_sound.set_volume(1/100*20)
+        self.combo_4_sound = pygame.mixer.Sound('./assets/sound/efc/combo/EnchantStar4.mp3')
+        self.combo_4_sound.set_volume(1/100*20)
+        self.combo_5_sound = pygame.mixer.Sound('./assets/sound/efc/combo/EnchantStar5.mp3')
+        self.combo_5_sound.set_volume(1/100*20)
+        self.combo_break_sound = pygame.mixer.Sound('./assets/sound/efc/combo/EnchantFail.mp3')
+        self.combo_break_sound.set_volume(1/100*20)
 
     def spawn(self):
         if self.hand == 'empty':
@@ -91,13 +100,17 @@ class Tetris:
 
     def score_count(self, clear_type):
         if clear_type in CLEAR_TYPE:
-            clear_type_score = CLEAR_TYPE[clear_type]['score']
-            all_clear_score = ALL_CLEAR_REWARD['score'] if self.emptied_field() else 0 # All_Clear
+            clear_type_score = CLEAR_TYPE[clear_type]['score'] * (B2B_REWARD if self.b2b >= 2 else 1) # Clear
+            all_clear_score =(ALL_CLEAR_REWARD['b2b_quad'] if self.b2b >= 2 and clear_type == 'quad' else ALL_CLEAR_REWARD[clear_type]) if self.emptied_field() else 0 # All_Clear
             combo_score = (self.combo-1) * COMBO_REWARD # Combo
-            b2b_score = B2B_REWARD if self.b2b > 2 else 1 # B2B
             
-            add_score = (clear_type_score * b2b_score + combo_score + all_clear_score) * self.level
-
+            add_score = (clear_type_score + combo_score + all_clear_score) * self.level
+            print(f'\n\
+                  clearscore btb:{clear_type_score} ({clear_type_score * self.level})\n\
+                  combo:{combo_score} ({combo_score*self.level})\n\
+                  allclear:{all_clear_score} ({all_clear_score*self.level})\n\
+                  total:{add_score}\n')
+            
             self.score += add_score
     
     def set_level(self):
@@ -120,12 +133,14 @@ class Tetris:
         clear_type = self.clear_type(len(lines))
 
         self.removed_lines += len(lines)
-        
-        self.set_level()
 
         if len(lines) > 0:
             # Combo Count
             self.combo += 1
+            if self.combo >= 5: self.combo_5_sound.play()
+            elif self.combo >= 4: self.combo_4_sound.play()
+            elif self.combo >= 3: self.combo_3_sound.play()
+            elif self.combo >= 2: self.combo_2_sound.play()
             
             if clear_type in B2B_CLEAR_TYPE_LIST:
                 # B2B Count
@@ -138,22 +153,22 @@ class Tetris:
 
         else:
             # Combo Reset
+            if self.combo >= 4:
+                self.combo_break_sound.play()
             self.combo = 0
 
         # Clear Sound Efc
         if len(lines) > 0:
-            if self.emptied_field():
-                self.all_clear_sound.play()
+            if self.emptied_field(): self.all_clear_sound.play()
 
-            if 'tspin' in clear_type:
-                self.clear_tspin_sound.play()
-            elif clear_type == 'quad':
-                self.clear_quad_sound.play()
-            else:
-                self.clear_sound.play()
+            if 'tspin' in clear_type: self.clear_tspin_sound.play()
+            elif clear_type == 'quad': self.clear_quad_sound.play()
+            else: self.clear_sound.play()
 
         self.score_count(clear_type)
-        
+
+        self.set_level()
+
         self.info()
 
     def line_clear(self, target_lines):
@@ -203,7 +218,7 @@ class Tetris:
 
         for event in events:
             if event.type == pygame.KEYDOWN:
-                # 개발 테스트 전용
+                # 디버깅 전용
                 if event.key == pygame.K_1:
                     self.all_clear()
                     self.next_queue = ['l', 'j', 'o', 'i', 't', 'z', 's', 'j', 't', 'i']
@@ -213,10 +228,22 @@ class Tetris:
 
                 elif event.key == pygame.K_2:
                     self.all_clear()
-                    self.next_queue = ['l', 'j', 's', 'z', 'i', 't', 'o', 'j', 'l', 'i', 'o', 'z', 'j', 'o', 's', 't', 't', 't']
+                    self.next_queue = ['l', 'j', 's', 'z', 'i', 't', 'o', 'j', 'l', 'i', 'o', 'z', 'j', 'o', 's'] + ['t']*100
                     self.hold = 'empty'
                     self.hand = 'empty'
                     self.spawn()
+
+                elif event.key == pygame.K_3:
+                    self.all_clear()
+                    self.next_queue = ['i']*1024
+                    self.hold = 'empty'
+                    self.hand = 'empty'
+                    self.spawn()
+                
+                elif event.key == pygame.K_t:
+                    self.level = 1
+                    self.removed_lines = 0
+                    self.score = 999900000
 
                 # Hard Drop
                 elif event.key == pygame.K_SPACE:
@@ -245,7 +272,8 @@ class Tetris:
 
         # Soft Drop
         if keys[pygame.K_DOWN]:
-            self.tetromino.soft_drop()
+            if self.tetromino.soft_drop():
+                self.drop_sound.play()
 
         # left, right move
         if keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]:
@@ -253,7 +281,8 @@ class Tetris:
             if self.l_das > DAS * FPS_RATIO or self.l_das == 1:
                 while self.l_arr >= ARR * FPS_RATIO:
                     self.l_arr -= ARR * FPS_RATIO
-                    self.tetromino.move('left')
+                    if self.tetromino.move('left'):
+                        self.move_sound.play()
                 self.l_arr += 1
         else:
             self.l_das = 0
@@ -264,7 +293,8 @@ class Tetris:
                 if self.r_das > DAS * FPS_RATIO or self.r_das == 1:
                     while self.r_arr >= ARR * FPS_RATIO:
                         self.r_arr -= ARR * FPS_RATIO
-                        self.tetromino.move('right')
+                        if self.tetromino.move('right'):
+                            self.move_sound.play()
                     self.r_arr += 1
             else:
                 self.r_das = 0

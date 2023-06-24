@@ -36,20 +36,26 @@ class Tetromino:
         self.randing()
 
     def soft_drop(self):
+        drop = False
         if not self.is_rand():
             if SDF != 0:
                 self.soft_drop_times += SDF / 20 / FPS_RATIO
                 while self.soft_drop_times >= 1:
                     self.soft_drop_times -= 1
                     self.move('down')
+                    drop = True
                     self.tetris.score += 1
             
             else:
+                drop = True
                 depth = 0
                 while not self.is_rand():
                     self.move('down')
                     depth += 1
+
                 self.tetris.score += depth
+        
+        return drop
 
     def rotate(self, direction):
         rand = self.is_rand()
@@ -92,23 +98,29 @@ class Tetromino:
                 self.rotate_index = index_copy
           
     def move(self, direction):
+        move = False
         rand = self.is_rand()
         if direction == 'left':
             if not self.is_collition((self.pos.x - 1, self.pos.y)):
                 self.pos.x -= 1
                 if rand: self.floor_kick()
+                move = True
                 self.last_action = 'move'
 
         elif direction == 'right':
             if not self.is_collition((self.pos.x + 1, self.pos.y)):
                 self.pos.x += 1
                 if rand: self.floor_kick()
+                move = True
                 self.last_action = 'move'
 
         elif direction == 'down':
             if not self.is_rand():
                 self.pos.y += 1
+                move = True
                 self.last_action = 'move'
+
+        return move
 
     def gravity_down(self):
         self.auto_drop()

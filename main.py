@@ -10,6 +10,7 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), flags, display=0)
         pygame.display.set_caption('TETRIS')
         self.clock = pygame.time.Clock()
+        pygame.mixer.set_num_channels(64)
         self.tetris = Tetris(self)
 
     def run(self):
@@ -24,8 +25,11 @@ class Game:
                     if event.key == pygame.K_F11:
                         pygame.display.toggle_fullscreen()
 
-            self.screen.fill((190, 210, 255))
+            pygame.time.get_ticks()
+
+            self.screen.fill((0, 0, 0))
             self.tetris.run()
+
             pygame.display.update()
             self.clock.tick_busy_loop(FPS)
 

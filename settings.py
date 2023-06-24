@@ -8,8 +8,9 @@ PIECE_SIZE = 22
 
 EXTRA_SPACE = 12
 WINDOW_BAR_HEIGHT = 20
-WINDOW_BORDER_RADIUS = 5
-WINDOW_OPACITY = 35
+WINDOW_BORDER_RADIUS = 7
+WINDOW_OPACITY = 50
+WINDOW_BAR_OPACITY = 75
 
 NEXT_DISPLAY_LIMIT = 5     # 넥스트 큐 표시 개수
 GHOST_PIECE_DISPLAY = True # 고스트피스 표시 여부
@@ -149,7 +150,21 @@ CLEAR_TYPE = {
     'tspin_mini_single': {'garbage': 0, 'score': 200},
     'tspin_mini_double': {'garbage': 1, 'score': 400}}
 
-ALL_CLEAR_REWARD = {'garbage':7, 'score':3500}
+B2B_GARBAGE_BONUS = {
+    'quad'             : 2,
+    'tspin_single'     : 1,
+    'tspin_double'     : 2,
+    'tspin_triple'     : 3,
+    'tspin_mini_single': 1,
+    'tspin_mini_double': 1}
+
+ALL_CLEAR_REWARD = {
+    'single'  : 800,
+    'double'  : 1200,
+    'triple'  : 1800,
+    'quad'    : 2000,
+    'b2b_quad': 3200}
+
 COMBO_REWARD     = 50
 B2B_REWARD       = 1.5
 

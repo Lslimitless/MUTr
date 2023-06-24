@@ -1,3 +1,8 @@
+ㅇ 드롭, T스핀, 올클리어, 콤보 중단 소리 바꾸기 -> 콤보중단 - 스킬쿨일때 나는 소리? (음량 조절)
+ㅇ 소스 출처 기재
+ㅇ piece 클래스 분리 후 클리어 애니메이션 넣기
+ㅇ 프레임 드랍에 상관없이 동일한 속도로 움직이게 하기
+
 ㅇ 테트리스 기본 시스템 상속받기 (클래식 솔로, 클래식 멀티, 유니온 솔로, 유니온 멀티)
     솔로 모드 : SURVIVAL(클래식, 유니온), 40 LINES(클래식), BLITZ(클래식), ZEN(클래식, 유니온)
     멀티 모드 : DUEL(클래식, 유니온)
@@ -8,10 +13,10 @@
 ㅇ 필드 생성 애니메이션
 
 ㅇ 설정
-비디오 : 해상도, 전체화면, FPS
-소리 : 배경, 효과음
-조작 : DAS, ARR, SDF
-기타 : 고스트 피스, 홀드 불가 시 음영처리
+    비디오 : 해상도, 전체화면, FPS
+    소리 : 배경, 효과음
+    조작 : DAS, ARR, SDF
+    기타 : 고스트 피스, 홀드 불가 시 음영처리, 클리어 애니메이션
 
 ㅇ pyinstaller 배포
 
@@ -31,3 +36,35 @@
 186-504	B2B x185-B2B x503	6
 505-1370	B2B x504-B2B x1369	7
 1371-(불명)	B2B x1370-(알 수 없음)	8
+
+
+
+사용한 소스:
+    - 효과음 -
+    좌우 효과음: Base.wz/Sound/Foot.img/leaf/5
+    회전 효과음: Base.wz/Sound/UI/Focus3
+    홀드 효과음: Base.wz/Sound/UI/Focus1
+    잠금 효과음: Base.wz/Sound/UI/Focus2
+
+    줄 제거: Base.wz/Sound/UI/Select1
+    4줄 제거: Base.wz/Sound/UI/Select2
+    T스핀+줄 제거: Base.wz/Sound/AchievementEff.img/AchievmentComplete
+    모든 줄 제거: Base.wz/Sound/AchievementEff.img/GradeUp
+
+    콤보 효과음 2~5: Base.wz/Sound/UI/EnchantStar2~5
+        콤보 중단 효과음: Base.wz/Sound/UI/EnchantFail
+
+
+    - 이미지 -
+    배경화면: 하늘고래산, 헌티드 맨션 - 비밀의 방
+
+    필드 배경: Base.wz/UI/UIWindow6.img/attackerSetting/backgrnd
+    빈조각: Base.wz/UI/UIWindow6.img/attackerSetting/Board/sector/char_main/0
+    직업조각: Base.wz/UI/UIWindow6.img/attackerSetting/Board/sector/char_sub/0
+    연결부분: Base.wz/UI/UIWindow6.img/attackerSetting/Board/sector/fill/hori, verti, center
+    고스트피스: Base.wz/UI/UIWindow6.img/attackerSetting/Board/sector/blink/0~6
+
+
+    - 폰트 -
+    7 세그먼트 폰트 출처: http://www.toho-inc.co.kr/toho/board/bbs/board.php?bo_table=pro01_04&wr_id=1
+    Maplestory Bold: https://maplestory.nexon.com/Media/Font

@@ -1,30 +1,25 @@
 import pygame
-import os
 import numpy as np
 from settings import *
 from support import *
+import random
 
 class Ui:
     def __init__(self, tetris):
         self.display_surface = pygame.display.get_surface()
         self.tetris = tetris
-        
-        self.piece_img = {
-            2: pygame.image.load('./assets/img/piece/2.png').convert_alpha(),
-            3: pygame.image.load('./assets/img/piece/3.png').convert_alpha(),
-            4: pygame.image.load('./assets/img/piece/4.png').convert_alpha(),
-            5: pygame.image.load('./assets/img/piece/5.png').convert_alpha(),
-            6: pygame.image.load('./assets/img/piece/6.png').convert_alpha(),
-            7: pygame.image.load('./assets/img/piece/7.png').convert_alpha(),
-            8: pygame.image.load('./assets/img/piece/8.png').convert_alpha()}
-        
-        self.piece_bg_img = import_folder('./assets/img/piece_bg')
 
-        self.ghost_piece_img = import_folder('./assets/img/ghost_piece')
+        self.bg_imgs = import_folder('dict', './assets/img/back_ground_img')
+        self.bg_img = random.choice(list(self.bg_imgs.values()))
+        self.piece_img = import_folder('dict', './assets/img/piece')
+        self.piece_bg_img = import_folder('list', './assets/img/piece_bg')
+        self.ghost_piece_img = import_folder('list', './assets/img/ghost_piece')
+        
         self.ghost_piece_img_index = 0
-        print(os.path.abspath('./assets/font/7SEGLED_TTM000.ttf'))
-        self.window_bar_font = pygame.font.Font('./assets/font/gulim.ttc', 12)
-        self.score_board_font = pygame.font.Font('./assets/font/7SEGLED_TTM000.ttf', 32)
+
+        self.window_bar_font = pygame.font.Font('./assets/font/Maplestory Bold.ttf', 12)
+        self.score_board_head_font = pygame.font.Font('./assets/font/Maplestory Bold.ttf', 12)
+        self.score_board_value_font = pygame.font.Font('./assets/font/7SEGLED_TTM000.ttf', 32)
         
     def field_window(self):
         tetromino = self.tetris.tetromino
@@ -49,6 +44,7 @@ class Ui:
 
         # Field Window
         pygame.draw.rect(field_win_surface, (0, 0, 0, 255/100*WINDOW_OPACITY), field_win_rect, border_radius=WINDOW_BORDER_RADIUS)
+        pygame.draw.rect(field_win_surface, (255, 255, 255), field_win_rect, 1, border_radius=WINDOW_BORDER_RADIUS)
 
         # Field BG
         for row_index, rows in enumerate(self.tetris.map):
@@ -61,7 +57,7 @@ class Ui:
         for row_index, rows in enumerate(self.tetris.map):
             for col_index, col in enumerate(rows):     
                 if col > 0:
-                    field_surface.blit(self.piece_img[col], \
+                    field_surface.blit(self.piece_img[str(int(col))], \
                                       (col_index*PIECE_SIZE-2, row_index*PIECE_SIZE-2))
                     
         # Ghost Piece
@@ -77,8 +73,8 @@ class Ui:
         for row_index, rows in enumerate(tetromino.piece_array):
             for col_index, col in enumerate(rows):
                 if col > 0:
-                    img = pygame.Surface(self.piece_img[col].get_size(), pygame.SRCALPHA)
-                    img.blit(self.piece_img[col], (0, 0))
+                    img = pygame.Surface(self.piece_img[str(col)].get_size(), pygame.SRCALPHA)
+                    img.blit(self.piece_img[str(col)], (0, 0))
                     img.set_alpha(255 - 255 * (tetromino.rand_times / tetromino.lock_delay) / 2)
                     field_surface.blit(img, \
                                       ((int(tetromino.pos.x) + col_index)*PIECE_SIZE-2, \
@@ -102,6 +98,7 @@ class Ui:
         return surface
 
     def hold_window(self):
+        title_text_size = self.score_board_head_font.size('0')
         
         # -------- Create Surface --------
 
@@ -124,19 +121,24 @@ class Ui:
         # Window
         pygame.draw.rect(hold_win_surface, (0, 0, 0, 255/100*WINDOW_OPACITY), hold_win_rect, \
                          border_bottom_left_radius=WINDOW_BORDER_RADIUS, border_bottom_right_radius=WINDOW_BORDER_RADIUS)
+        pygame.draw.rect(hold_win_surface, (255, 255, 255), hold_win_rect, 1, \
+                         border_bottom_left_radius=WINDOW_BORDER_RADIUS, border_bottom_right_radius=WINDOW_BORDER_RADIUS)
 
         # Window Title Bar
-        pygame.draw.rect(hold_title_bar_surface, (0, 0, 0, 255/100*WINDOW_OPACITY*2), hold_title_bar_rect, \
+        pygame.draw.rect(hold_title_bar_surface, (0, 0, 0, 255/100*WINDOW_BAR_OPACITY), hold_title_bar_rect, \
                          border_top_left_radius=WINDOW_BORDER_RADIUS, border_top_right_radius=WINDOW_BORDER_RADIUS)
-        
+        pygame.draw.rect(hold_title_bar_surface, (255, 255, 255), hold_title_bar_rect, 1, \
+                         border_top_left_radius=WINDOW_BORDER_RADIUS, border_top_right_radius=WINDOW_BORDER_RADIUS)
+
         # Window Title Bar Text
         title = 'HOLD'
 
-        text_box = pygame.Surface((len(title) * 8, 12), pygame.SRCALPHA)
+        text_box = pygame.Surface((title_text_size[0] * len(title), title_text_size[1]), pygame.SRCALPHA)
         text_box_rect = text_box.get_rect()
-        title_text = self.window_bar_font.render(title, 1, pygame.Color(255, 255, 255))
 
+        title_text = self.window_bar_font.render(title, 1, pygame.Color(255, 255, 255))
         text_box.blit(title_text, (0, 0))
+
         hold_title_bar_surface.blit(text_box, (hold_title_bar_rect.centerx - text_box_rect.centerx, \
                                              hold_title_bar_rect.centery - text_box_rect.centery))
 
@@ -145,8 +147,8 @@ class Ui:
             for row_index, rows in enumerate(DISPLAY_SHAPE[self.tetris.hold]):
                 for col_index, col in enumerate(rows):
                     if col > 0:
-                        img = pygame.Surface(self.piece_img[col].get_size(), pygame.SRCALPHA)
-                        img.blit(self.piece_img[col], (0, 0))
+                        img = pygame.Surface(self.piece_img[str(col)].get_size(), pygame.SRCALPHA)
+                        img.blit(self.piece_img[str(col)], (0, 0))
                         if not self.tetris.holdable and HOLDABLE_DISPLAY:
                             img.fill((255//3, 255//3, 255//3), special_flags=pygame.BLEND_SUB)
                         
@@ -166,6 +168,8 @@ class Ui:
         return surface
         
     def next_window(self):
+        title_text_size = self.score_board_head_font.size('0')
+
         # -------- Create Surface --------
 
         surface = pygame.Surface((5 * PIECE_SIZE + EXTRA_SPACE * 2, \
@@ -187,19 +191,24 @@ class Ui:
         # Window
         pygame.draw.rect(next_win_surface, (0, 0, 0, 255/100*WINDOW_OPACITY), next_win_rect, \
                          border_bottom_left_radius=WINDOW_BORDER_RADIUS, border_bottom_right_radius=WINDOW_BORDER_RADIUS)
+        pygame.draw.rect(next_win_surface, (255, 255, 255), next_win_rect, 1, \
+                         border_bottom_left_radius=WINDOW_BORDER_RADIUS, border_bottom_right_radius=WINDOW_BORDER_RADIUS)
 
         # Window Title Bar
-        pygame.draw.rect(next_title_bar_surface, (0, 0, 0, 255/100*WINDOW_OPACITY*2), next_title_bar_rect, \
+        pygame.draw.rect(next_title_bar_surface, (0, 0, 0, 255/100*WINDOW_BAR_OPACITY), next_title_bar_rect, \
                          border_top_left_radius=WINDOW_BORDER_RADIUS, border_top_right_radius=WINDOW_BORDER_RADIUS)
-        
+        pygame.draw.rect(next_title_bar_surface, (255, 255, 255), next_title_bar_rect, 1,\
+                         border_top_left_radius=WINDOW_BORDER_RADIUS, border_top_right_radius=WINDOW_BORDER_RADIUS)
+
         # Window Title Bar Text
         title = 'NEXT'
 
-        text_box = pygame.Surface((len(title) * 8, 12), pygame.SRCALPHA)
+        text_box = pygame.Surface((title_text_size[0] * len(title), title_text_size[1]), pygame.SRCALPHA)
         text_box_rect = text_box.get_rect()
-        title_text = self.window_bar_font.render(title, 1, pygame.Color(255, 255, 255))
 
+        title_text = self.window_bar_font.render(title, 1, pygame.Color(255, 255, 255))
         text_box.blit(title_text, (0, 0))
+
         next_title_bar_surface.blit(text_box, (next_title_bar_rect.centerx - text_box_rect.centerx, next_title_bar_rect.centery - text_box_rect.centery))
 
         # Piece
@@ -208,7 +217,7 @@ class Ui:
             for row_index, rows in enumerate(DISPLAY_SHAPE[shape]):
                 for col_index, col in enumerate(rows):
                     if col > 0:
-                        next_win_surface.blit(self.piece_img[col], (next_win_rect.centerx + col_index * PIECE_SIZE - len(rows) * PIECE_SIZE // 2 - 2, \
+                        next_win_surface.blit(self.piece_img[str(col)], (next_win_rect.centerx + col_index * PIECE_SIZE - len(rows) * PIECE_SIZE // 2 - 2, \
                                                                     EXTRA_SPACE + 3 * PIECE_SIZE // 2 + (i * ((3 * PIECE_SIZE) + EXTRA_SPACE)) + row_index * PIECE_SIZE - len(DISPLAY_SHAPE[self.tetris.next_queue[i]]) * PIECE_SIZE // 2 - 2))
 
         # -------- Merge Surface --------
@@ -222,11 +231,18 @@ class Ui:
         return surface
         
     def score_board_window(self):
+        head_text_size = self.score_board_head_font.size('0')
+        value_text_size = self.score_board_value_font.size('0')
+        text_line_space = 8
+        value_char_limit = 9
+        info_list = [{'name': 'LEVEL', 'value': self.tetris.level},
+                     {'name': 'LINES', 'value': self.tetris.removed_lines},
+                     {'name': 'SCORE', 'value': self.tetris.score}]
         
         # -------- Create Surface --------
 
-        surface = pygame.Surface((5 * PIECE_SIZE + EXTRA_SPACE * 2, \
-                                  3 * 32 + 16 * 2 + EXTRA_SPACE * 2), pygame.SRCALPHA)
+        surface = pygame.Surface((value_text_size[0] * value_char_limit + EXTRA_SPACE * 2, \
+                                  (head_text_size[1] + value_text_size[1]) * 3 + text_line_space * 2 + EXTRA_SPACE * 2), pygame.SRCALPHA)
         surface_rect = surface.get_rect()
         
 
@@ -238,21 +254,41 @@ class Ui:
         # Window
         pygame.draw.rect(score_board_surface, (0, 0, 0, 255/100*WINDOW_OPACITY), score_board_rect, \
                          border_radius=WINDOW_BORDER_RADIUS)
+        pygame.draw.rect(score_board_surface, (255, 255, 255), score_board_rect, 1, \
+                         border_radius=WINDOW_BORDER_RADIUS)
+
 
         # Text
-        info_list = [self.tetris.level, self.tetris.removed_lines, self.tetris.score]
         for i, info in enumerate(info_list):
-            info_str = str(info)
-    
-            info_box = pygame.Surface((len(info_str) * 16, 32), pygame.SRCALPHA)
-            info_box_rect = info_box.get_rect()
-            # pygame.draw.rect(info_box, (255, 0, 0), info_box_rect, 1)
-            
-            info_text = self.score_board_font.render(info_str, 1, pygame.Color(255, 255, 255))
+            info = info_list[i]['value']
 
+            head_str = info_name = info_list[i]['name']
+            bg_info_str = '8' * value_char_limit
+            info_str = str(int(info % 10 ** value_char_limit)) if info < 10**value_char_limit  else '9' * value_char_limit
+    
+            head_box = pygame.Surface((score_board_rect.width, head_text_size[1]), pygame.SRCALPHA)
+            bg_info_box = pygame.Surface((value_text_size[0] * len(bg_info_str), value_text_size[1]), pygame.SRCALPHA)
+            info_box = pygame.Surface((value_text_size[0] * len(str(int(info))), value_text_size[1]), pygame.SRCALPHA)
+            
+            head_box_rect = head_box.get_rect()
+            bg_info_box_rect = bg_info_box.get_rect()
+            info_box_rect = info_box.get_rect()
+            
+            head_text = self.score_board_head_font.render(head_str, 1, pygame.Color(255, 255, 255))
+            bg_info_text = self.score_board_value_font.render(bg_info_str, 1, pygame.Color(255, 255, 255))
+            bg_info_text.set_alpha(255 / 100 * 25)
+            info_text = self.score_board_value_font.render(info_str, 1, pygame.Color(255, 255, 255))
+
+            head_box.blit(head_text, (0, 0))
+            bg_info_box.blit(bg_info_text, (0, 0))
             info_box.blit(info_text, (0, 0))
+
+            score_board_surface.blit(head_box, (score_board_rect.left + EXTRA_SPACE, \
+                                                EXTRA_SPACE + (head_text_size[1] + value_text_size[1] + text_line_space) * i))
+            score_board_surface.blit(bg_info_box, (score_board_rect.right - EXTRA_SPACE - bg_info_box_rect.width, \
+                                                EXTRA_SPACE + head_text_size[1] + (head_text_size[1] + value_text_size[1] + text_line_space) * i))
             score_board_surface.blit(info_box, (score_board_rect.right - EXTRA_SPACE - info_box_rect.width, \
-                                                EXTRA_SPACE + (32+16) * i))
+                                                EXTRA_SPACE + head_text_size[1] + (head_text_size[1] + value_text_size[1] + text_line_space) * i))
         
         # -------- Merge Surface --------
 
@@ -286,7 +322,10 @@ class Ui:
         harp_width = display_size[0] // 2
         harp_height = display_size[1] // 2
 
-        mPos = pygame.mouse.get_pos()
+        # mPos = pygame.mouse.get_pos()
+
+        # BackGround
+        self.display_surface.blit(self.bg_img, (0, 0))
 
         # Field Window
         field_full_win = self.field_window()
