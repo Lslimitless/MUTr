@@ -8,7 +8,7 @@ class Game:
         pygame.init()
         flags = pygame.HWSURFACE | pygame.DOUBLEBUF
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), flags, display=0)
-        pygame.display.set_caption('TETRIS')
+        pygame.display.set_caption('MUTr')
         self.clock = pygame.time.Clock()
         pygame.mixer.set_num_channels(64)
         self.tetris = Tetris(self)

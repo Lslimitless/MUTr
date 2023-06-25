@@ -267,9 +267,11 @@ class Ui:
         for i, info in enumerate(info_list):
             info = info_list[i]['value']
 
-            head_str = info_name = info_list[i]['name']
+            head_str = info_list[i]['name']
             bg_info_str = '8' * value_char_limit
-            info_str = str(int(info % 10 ** value_char_limit)) if info < 10**value_char_limit  else '9' * value_char_limit
+            info_str = (str(int(info % 10 ** value_char_limit)) \
+                if not (head_str == 'LEVEL' and info == list(CLASSIC_LEVEL_DATA.keys())[-1]) else 'MAX') \
+                if info < 10**value_char_limit else '9' * value_char_limit
     
             head_box = pygame.Surface((score_board_rect.width, head_text_size[1]), pygame.SRCALPHA)
             bg_info_box = pygame.Surface((value_text_size[0] * len(bg_info_str), value_text_size[1]), pygame.SRCALPHA)

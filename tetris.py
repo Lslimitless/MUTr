@@ -17,7 +17,14 @@ class Tetris:
         self.hand = 'empty'
         self.hold = 'empty'
         self.next_queue = []
-        self.gravity = CLASSIC_LEVEL_DATA[1]['g']  # G
+        self.b2b = 0
+        self.combo = 0
+        self.level = 1
+        self.score = 0
+        self.removed_lines = 0
+        self.gravity = CLASSIC_LEVEL_DATA[self.level]['g']  # G
+        self.l_cnt = 0
+        self.r_cnt = 0
         self.last_l_das = 0
         self.last_r_das = 0
         self.last_l_arr = ARR
@@ -28,20 +35,11 @@ class Tetris:
         self.r_arr = 0
         self.soft_drop_time = 0
         self.soft_drop_last_time = 0
-        self.combo = 0
-        self.b2b = 0
-        self.level = 1
-        self.score = 0
-        self.removed_lines = 0
-        self.l_cnt = 0
-        self.r_cnt = 0
 
         pygame.mixer.music.load('./assets/sound/bgm/halloweenParty.mp3')
         pygame.mixer.music.set_volume(1/100*25)
-        # pygame.mixer.music.play(-1)
+        pygame.mixer.music.play(-1)
 
-        # self.move_sound = pygame.mixer.Sound('./assets/sound/efc/handling/5.mp3')
-        # self.move_sound.set_volume(1/100*20)
         self.move_sound = import_sound('./assets/sound/efc/handling/5.mp3', volume=20)
         self.drop_sound = import_sound('./assets/sound/efc/handling/5.mp3', volume=20)
         self.rotate_sound = import_sound('./assets/sound/efc/handling/Focus3.mp3', volume=20)
@@ -109,17 +107,19 @@ class Tetris:
             combo_score = (self.combo-1) * COMBO_REWARD # Combo
             
             add_score = (clear_type_score + combo_score + all_clear_score) * self.level
-            print(f'\n\
-                  clearscore btb:{clear_type_score} ({clear_type_score * self.level})\n\
-                  combo:{combo_score} ({combo_score*self.level})\n\
-                  allclear:{all_clear_score} ({all_clear_score*self.level})\n\
-                  total:{add_score}\n')
+            # print(f'\n\
+            #       clearscore btb:{clear_type_score} ({clear_type_score * self.level})\n\
+            #       combo:{combo_score} ({combo_score*self.level})\n\
+            #       allclear:{all_clear_score} ({all_clear_score*self.level})\n\
+            #       total:{add_score}\n')
             
             self.score += add_score
     
     def set_level(self):
         for level in CLASSIC_LEVEL_DATA:
-            if self.removed_lines >= CLASSIC_LEVEL_DATA[level]['total_lines']:
+            if self.removed_lines >= CLASSIC_LEVEL_DATA[level]['total_lines'] \
+            and level > self.level:
+                
                 self.level = level
                 self.gravity = CLASSIC_LEVEL_DATA[level]['g']
 
@@ -204,15 +204,17 @@ class Tetris:
     def game_over(self):
         print('Reset')
         self.all_clear()
+        
+        self.holdable = True
         self.hand = 'empty'
         self.hold = 'empty'
         self.next_queue = []
-        self.boldable = True
-        self.combo = 0
         self.b2b = 0
+        self.combo = 0
+        self.level = 1
         self.score = 0
         self.removed_lines = 0
-        self.set_level()
+        self.gravity = CLASSIC_LEVEL_DATA[self.level]['g']  # G
         
         self.spawn()
 
@@ -245,9 +247,10 @@ class Tetris:
                     self.spawn()
                 
                 elif event.key == pygame.K_t:
-                    self.level = 1
-                    self.removed_lines = 160
-                    self.score = 999900000
+                    # self.level = 1
+                    self.removed_lines = 999999999
+                    self.score = 999999999
+                    self.set_level()
 
                 # Hard Drop
                 elif event.key == pygame.K_SPACE:
@@ -276,15 +279,20 @@ class Tetris:
 
         # Soft Drop
         if keys[pygame.K_DOWN]:
-            self.soft_drop_time = self.current_time - self.soft_drop_last_time
+            if SDF != 0:
+                self.soft_drop_time = self.current_time - self.soft_drop_last_time
 
-            if self.soft_drop_time > 1000 / 3 / SDF:
+                if self.soft_drop_time > 1000 / 3 / SDF:
 
-                for _ in range(int(self.soft_drop_time // (1000 / 3 / SDF))):
-                    self.soft_drop_last_time += 1000 / 3 / SDF
-                    
-                    if self.tetromino.soft_drop():
-                        self.drop_sound.play()
+                    for _ in range(int(self.soft_drop_time // (1000 / 3 / SDF))):
+                        self.soft_drop_last_time += 1000 / 3 / SDF
+                        
+                        if self.tetromino.soft_drop():
+                            self.drop_sound.play()
+
+            else:
+                if self.tetromino.soft_drop():
+                    self.drop_sound.play()
 
         else:
             self.soft_drop_last_time = self.current_time
@@ -303,11 +311,16 @@ class Tetris:
                 self.l_arr = self.current_time - self.last_l_arr
 
                 if self.l_arr >= ARR:
-                    
-                    for _ in range(int(self.l_arr // ARR)):
-                        self.last_l_arr += ARR
 
-                        if self.tetromino.move('left'):
+                    if ARR > 0:
+                        for _ in range(int(self.l_arr // ARR)):
+                            self.last_l_arr += ARR
+
+                            if self.tetromino.move('left'):
+                                self.move_sound.play()
+
+                    else:
+                        while self.tetromino.move('left'):
                             self.move_sound.play()
 
             else:
@@ -332,11 +345,17 @@ class Tetris:
 
                 if self.r_arr >= ARR:
 
-                    for _ in range(int(self.r_arr // ARR)):
-                        self.last_r_arr += ARR
+                    if ARR > 0: 
+                        for _ in range(int(self.r_arr // ARR)):
+                            self.last_r_arr += ARR
 
-                        if self.tetromino.move('right'):
+                            if self.tetromino.move('right'):
+                                self.move_sound.play()
+
+                    else:
+                        while self.tetromino.move('right'):
                             self.move_sound.play()
+                    
 
             else:
                 self.last_r_arr = self.current_time
@@ -349,9 +368,6 @@ class Tetris:
     def info(self):
         print(f'B2B:{self.b2b}')
         print(f'Combo:{self.combo}')
-        print(f'Level:{self.level}')
-        print(f'Lines:{self.removed_lines}')
-        print(f'Score:{self.score}\n')
     
     def run(self):
         self.current_time = pygame.time.get_ticks()

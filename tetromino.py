@@ -37,20 +37,15 @@ class Tetromino:
 
     def soft_drop(self):
         drop = False
-        if not self.is_rand():
-            if SDF != 0:
-                self.move('down')
-                drop = True
+        if SDF > 0:
+            if self.move('down'):
                 self.tetris.score += 1
-            
-            else:
                 drop = True
-                depth = 0
-                while not self.is_rand():
-                    self.move('down')
-                    depth += 1
 
-                self.tetris.score += depth
+        else:
+            while self.move('down'):
+                self.tetris.score += 1
+                drop = True
         
         return drop
 
@@ -175,7 +170,6 @@ class Tetromino:
 
         if ground_in < 1:
             self.tetris.game_over()
-            print('@@@@@')
     
         else:
             self.tetris.check_line()
