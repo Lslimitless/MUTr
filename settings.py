@@ -16,9 +16,9 @@ NEXT_DISPLAY_LIMIT = 5     # 넥스트 큐 표시 개수
 GHOST_PIECE_DISPLAY = True # 고스트피스 표시 여부
 HOLDABLE_DISPLAY = True    # 홀드 불가 시 음영 여부
 
-FPS = 120   # 60, 75, 120, 144, 165, 240, inf
+FPS = 60   # 60, 75, 120, 144, 165, 240, inf
 
-DAS = 170    # 반복 전 지연 1 ~ 20 Frame 60프레임 기준 ((1000 / 60) * (DAS * 현재 FPS / 60))
+DAS = 167    # 반복 전 지연 1 ~ 20 Frame 60프레임 기준 ((1000 / 60) * (DAS * 현재 FPS / 60))
 ARR = 33     # 반복 중 지연 0 ~ 5 Frame 60프레임 기준 ((1000 / 60) * (ARR * 현재 FPS / 60))
 SDF = 10     # 소프트 드랍 속도 5 ~ 40, inf
 
@@ -119,7 +119,28 @@ I_KICK_TABLE = {
     'R>L': [( 0,  0), ( 1,  0), ( 1, -2), ( 1, -1), ( 0, -2), ( 0, -1)],
     'L>R': [( 0,  0), (-1,  0), (-1, -2), (-1, -1), ( 0, -2), ( 0, -1)]}
 
-LEVEL_DATA = {
+CLASSIC_LEVEL_DATA = {
+     1: {'total_lines':   0, 'g': 0.01667},
+     2: {'total_lines':  10, 'g': 0.021017},
+     3: {'total_lines':  20, 'g': 0.026977},
+     4: {'total_lines':  30, 'g': 0.035256},
+     5: {'total_lines':  40, 'g': 0.04693},
+     6: {'total_lines':  50, 'g': 0.06361},
+     7: {'total_lines':  60, 'g': 0.0879},
+     8: {'total_lines':  70, 'g': 0.1236},
+     9: {'total_lines':  80, 'g': 0.1775},
+    10: {'total_lines':  90, 'g': 0.2598},
+    11: {'total_lines': 100, 'g': 0.388},
+    12: {'total_lines': 110, 'g': 0.59},
+    13: {'total_lines': 120, 'g': 0.92},
+    14: {'total_lines': 130, 'g': 1.46},
+    15: {'total_lines': 140, 'g': 2.36},
+    16: {'total_lines': 150, 'g': 3.91},
+    17: {'total_lines': 160, 'g': 6.61},
+    18: {'total_lines': 170, 'g': 11.43},
+    19: {'total_lines': 180, 'g': 20}}
+
+BLITZ_LEVEL_DATA = {
      1: {'total_lines':   0, 'g': 0.0167},
      2: {'total_lines':   3, 'g': 0.0259},
      3: {'total_lines':   8, 'g': 0.0412},

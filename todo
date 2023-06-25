@@ -1,9 +1,10 @@
+ㅇ 클리어타입 표면 그리기
 ㅇ 드롭, T스핀, 올클리어, 콤보 중단 소리 바꾸기 -> 콤보중단 - 스킬쿨일때 나는 소리? (음량 조절)
 ㅇ 소스 출처 기재
 ㅇ piece 클래스 분리 후 클리어 애니메이션 넣기
 
 ㅇ 테트리스 기본 시스템 상속받기 (클래식 솔로, 클래식 멀티, 유니온 솔로, 유니온 멀티)
-    솔로 모드 : SURVIVAL(클래식, 유니온), 40 LINES(클래식), BLITZ(클래식), ZEN(클래식, 유니온)
+    솔로 모드 : SURVIVAL(클래식, 유니온), SPRINT(클래식), BLITZ(클래식), ZEN(클래식, 유니온), CUSTOM()
     멀티 모드 : DUEL(클래식, 유니온)
 
 ㅇ 조각 단위로 접근하기 위해 Piece 클래스로 분리 (*백업 필수*)
@@ -62,6 +63,8 @@
     직업조각: Base.wz/UI/UIWindow6.img/attackerSetting/Board/sector/char_sub/0
     연결부분: Base.wz/UI/UIWindow6.img/attackerSetting/Board/sector/fill/hori, verti, center
     고스트피스: Base.wz/UI/UIWindow6.img/attackerSetting/Board/sector/blink/0~6
+
+    콤보:Base.wz/Effect/BasicEff.img/comboKill/3/0~9, combo
 
 
     - 폰트 -

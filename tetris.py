@@ -17,7 +17,7 @@ class Tetris:
         self.hand = 'empty'
         self.hold = 'empty'
         self.next_queue = []
-        self.gravity = LEVEL_DATA[1]['g']  # G
+        self.gravity = CLASSIC_LEVEL_DATA[1]['g']  # G
         self.last_l_das = 0
         self.last_r_das = 0
         self.last_l_arr = ARR
@@ -26,6 +26,8 @@ class Tetris:
         self.r_das = 0
         self.l_arr = 0
         self.r_arr = 0
+        self.soft_drop_time = 0
+        self.soft_drop_last_time = 0
         self.combo = 0
         self.b2b = 0
         self.level = 1
@@ -36,7 +38,7 @@ class Tetris:
 
         pygame.mixer.music.load('./assets/sound/bgm/halloweenParty.mp3')
         pygame.mixer.music.set_volume(1/100*25)
-        pygame.mixer.music.play(-1)
+        # pygame.mixer.music.play(-1)
 
         # self.move_sound = pygame.mixer.Sound('./assets/sound/efc/handling/5.mp3')
         # self.move_sound.set_volume(1/100*20)
@@ -116,10 +118,10 @@ class Tetris:
             self.score += add_score
     
     def set_level(self):
-        for level in LEVEL_DATA:
-            if self.removed_lines >= LEVEL_DATA[level]['total_lines']:
+        for level in CLASSIC_LEVEL_DATA:
+            if self.removed_lines >= CLASSIC_LEVEL_DATA[level]['total_lines']:
                 self.level = level
-                self.gravity = LEVEL_DATA[level]['g']
+                self.gravity = CLASSIC_LEVEL_DATA[level]['g']
 
     def check_line(self):
         lines = []
@@ -244,7 +246,7 @@ class Tetris:
                 
                 elif event.key == pygame.K_t:
                     self.level = 1
-                    self.removed_lines = 99999
+                    self.removed_lines = 160
                     self.score = 999900000
 
                 # Hard Drop
@@ -274,45 +276,75 @@ class Tetris:
 
         # Soft Drop
         if keys[pygame.K_DOWN]:
-            if self.tetromino.soft_drop():
-                self.drop_sound.play()
+            self.soft_drop_time = self.current_time - self.soft_drop_last_time
 
-        # left, right move
+            if self.soft_drop_time > 1000 / 3 / SDF:
+
+                for _ in range(int(self.soft_drop_time // (1000 / 3 / SDF))):
+                    self.soft_drop_last_time += 1000 / 3 / SDF
+                    
+                    if self.tetromino.soft_drop():
+                        self.drop_sound.play()
+
+        else:
+            self.soft_drop_last_time = self.current_time
+
+        # left move
         if keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]:
             self.l_das = self.current_time - self.last_l_das
             self.l_cnt += 1
 
-            if self.l_das > DAS or self.l_cnt == 1:
+
+            if self.l_cnt == 1:
+                if self.tetromino.move('left'):
+                    self.move_sound.play()
+
+            elif self.l_das > DAS:
                 self.l_arr = self.current_time - self.last_l_arr
 
                 if self.l_arr >= ARR:
-                    self.last_l_arr = self.current_time
+                    
+                    for _ in range(int(self.l_arr // ARR)):
+                        self.last_l_arr += ARR
 
-                    if self.tetromino.move('left'):
-                        self.move_sound.play()
+                        if self.tetromino.move('left'):
+                            self.move_sound.play()
+
+            else:
+                self.last_l_arr = self.current_time
 
         else:
             self.last_l_das = self.current_time
             self.last_l_arr = self.current_time - ARR
             self.l_cnt = 0
             
-            if keys[pygame.K_RIGHT] and not keys[pygame.K_LEFT]:
-                self.r_das = self.current_time - self.last_r_das
-                self.r_cnt += 1
+        # right move
+        if keys[pygame.K_RIGHT] and not keys[pygame.K_LEFT]:
+            self.r_das = self.current_time - self.last_r_das
+            self.r_cnt += 1
 
-                if self.r_das > DAS or self.r_cnt == 1:
-                    self.r_arr = self.current_time - self.last_r_arr
+            if self.r_cnt == 1:
+                if self.tetromino.move('right'):
+                    self.move_sound.play()
+            
+            elif self.r_das > DAS:
+                self.r_arr = self.current_time - self.last_r_arr
 
-                    if self.r_arr >= ARR:
-                        self.last_r_arr = self.current_time
+                if self.r_arr >= ARR:
+
+                    for _ in range(int(self.r_arr // ARR)):
+                        self.last_r_arr += ARR
 
                         if self.tetromino.move('right'):
                             self.move_sound.play()
 
             else:
-                self.last_r_das = self.current_time
-                self.last_r_arr = self.current_time - ARR
-                self.r_cnt = 0
+                self.last_r_arr = self.current_time
+
+        else:
+            self.last_r_das = self.current_time
+            self.last_r_arr = self.current_time - ARR
+            self.r_cnt = 0
                 
     def info(self):
         print(f'B2B:{self.b2b}')

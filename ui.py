@@ -1,8 +1,7 @@
 import pygame
-import numpy as np
 from settings import *
 from support import *
-import random
+from random import choice
 
 class Ui:
     def __init__(self, tetris):
@@ -13,8 +12,8 @@ class Ui:
 
         self.bg_imgs = import_folder('dict', './assets/img/back_ground_img')
         for key, value in self.bg_imgs.items():
-            self.bg_imgs[key] = pygame.transform.scale(value, self.display_surface.get_size())
-        self.bg_img = random.choice(list(self.bg_imgs.values()))
+            self.bg_imgs[key] = pygame.transform.smoothscale(value, self.display_surface.get_size())
+        self.bg_img = choice(list(self.bg_imgs.values()))
 
         self.piece_img = import_folder('dict', './assets/img/piece')
         self.piece_bg_img = import_folder('list', './assets/img/piece_bg')
