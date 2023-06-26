@@ -26,9 +26,9 @@ class Tetromino:
                 break
         
         return depth
-
+ 
     def hard_drop(self):
-        depth = 0
+        depth = 0 
         while not self.is_rand():
             self.move('down')
             depth += 1

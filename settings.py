@@ -1,5 +1,10 @@
-SCREEN_WIDTH = 1280
+SCREEN_WIDTH = 720
 SCREEN_HEIGHT = 720
+FPS = 0
+
+MASTER_VOLUME = 100
+BG_VOLUME = 100
+EFC_VOLUME = 100
 
 FIELD_WIDTH = 10
 FIELD_HEIGHT = 20
@@ -15,8 +20,6 @@ WINDOW_BAR_OPACITY = 75
 NEXT_DISPLAY_LIMIT = 5     # 넥스트 큐 표시 개수
 GHOST_PIECE_DISPLAY = True # 고스트피스 표시 여부
 HOLDABLE_DISPLAY = True    # 홀드 불가 시 음영 여부
-
-FPS = 60   # 60, 75, 120, 144, 165, 240, inf
 
 DAS = 167    # 반복 전 지연 1 ~ 20 Frame 60프레임 기준 ((1000 / 60) * (DAS * 현재 FPS / 60))
 ARR = 33    # 반복 중 지연 0 ~ 5 Frame 60프레임 기준 ((1000 / 60) * (ARR * 현재 FPS / 60))

@@ -6,15 +6,38 @@ from random import choice
 class Ui:
     def __init__(self, tetris):
         self.display_surface = pygame.display.get_surface()
+        self.display_rect = self.display_surface.get_rect()
         self.tetris = tetris
 
         self.scale = 1
-
+        
+        #--------------------------------------------------------------------------------------------
+        
         self.bg_imgs = import_folder('dict', './assets/img/back_ground_img')
-        for key, value in self.bg_imgs.items():
-            self.bg_imgs[key] = pygame.transform.smoothscale(value, self.display_surface.get_size())
         self.bg_img = choice(list(self.bg_imgs.values()))
+        # self.bg_img = self.bg_imgs['artwork']
 
+        bg_surf = pygame.Surface(self.bg_img.get_size())
+        bg_surf_size = bg_surf.get_size()
+        
+        # Vertical
+        if self.display_rect.height != bg_surf_size[1]:
+            bg_surf = pygame.Surface((bg_surf_size[0] * self.display_rect.height / bg_surf_size[1], \
+                                     self.display_rect.height))
+            bg_surf_size = bg_surf.get_size()
+
+            # Horizon
+            if self.display_rect.width > bg_surf_size[0]:
+                bg_surf = pygame.Surface((self.display_rect.width, \
+                                         bg_surf_size[1] * self.display_rect.width / bg_surf_size[0]))
+                bg_surf_size = bg_surf.get_size()
+
+        self.bg_img = pygame.transform.smoothscale(self.bg_img, bg_surf_size)
+        
+        self.bg_img_rect = self.bg_img.get_rect()
+        
+        #--------------------------------------------------------------------------------------------
+        
         self.piece_img = import_folder('dict', './assets/img/piece')
         self.piece_bg_img = import_folder('list', './assets/img/piece_bg')
         self.ghost_piece_img = import_folder('list', './assets/img/ghost_piece')
@@ -333,7 +356,8 @@ class Ui:
         # mPos = pygame.mouse.get_pos()
 
         # BackGround
-        self.display_surface.blit(self.bg_img, (0, 0))
+        self.display_surface.blit(self.bg_img, (self.display_rect.centerx - self.bg_img_rect.centerx, \
+                                                self.display_rect.centery - self.bg_img_rect.centery))
 
         # Field Window
         field_full_win = self.field_window()
