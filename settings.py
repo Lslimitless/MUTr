@@ -6,24 +6,25 @@ MASTER_VOLUME = 100
 BG_VOLUME = 100
 EFC_VOLUME = 100
 
+DAS = 167    # 반복 전 지연 1 ~ 20 Frame 60프레임 기준 ((1000 / 60) * (DAS * 현재 FPS / 60))
+ARR = 33    # 반복 중 지연 0 ~ 5 Frame 60프레임 기준 ((1000 / 60) * (ARR * 현재 FPS / 60))
+SDF = 10     # 소프트 드랍 속도 5 ~ 40, inf
+
+NEXT_DISPLAY_LIMIT = 5     # 넥스트 큐 표시 개수
+GHOST_PIECE_DISPLAY = True # 고스트피스 표시 여부
+HOLDABLE_DISPLAY = True    # 홀드 불가 시 음영 여부
+
 FIELD_WIDTH = 10
 FIELD_HEIGHT = 20
 ADD_FIELD_HEIGHT = 24
 PIECE_SIZE = 22
 
 EXTRA_SPACE = 12
+BETWEEN_SPACE = 16
 WINDOW_BAR_HEIGHT = 20
 WINDOW_BORDER_RADIUS = 7
 WINDOW_OPACITY = 50
 WINDOW_BAR_OPACITY = 75
-
-NEXT_DISPLAY_LIMIT = 5     # 넥스트 큐 표시 개수
-GHOST_PIECE_DISPLAY = True # 고스트피스 표시 여부
-HOLDABLE_DISPLAY = True    # 홀드 불가 시 음영 여부
-
-DAS = 167    # 반복 전 지연 1 ~ 20 Frame 60프레임 기준 ((1000 / 60) * (DAS * 현재 FPS / 60))
-ARR = 33    # 반복 중 지연 0 ~ 5 Frame 60프레임 기준 ((1000 / 60) * (ARR * 현재 FPS / 60))
-SDF = 10     # 소프트 드랍 속도 5 ~ 40, inf
 
 SHAPE = {
     'i': [
@@ -202,3 +203,4 @@ CORNER_OFFSET = [
   # LF       RF      LB      RB
 
 B2B_CLEAR_TYPE_LIST = ['quad', 'tspin_single', 'tspin_double', 'tspin_triple', 'tspin_mini_single', 'tspin_mini_double']
+

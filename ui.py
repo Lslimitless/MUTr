@@ -380,7 +380,7 @@ class Ui:
         hold_win_size = hold_win.get_size()
         hold_win_rect = pygame.Rect(0, 0, hold_win_size[0], hold_win_size[1])
 
-        hold_win_rect.left = field_win_rect.left - hold_win_rect.width - EXTRA_SPACE
+        hold_win_rect.left = field_win_rect.left - hold_win_rect.width - BETWEEN_SPACE
         hold_win_rect.top = field_win_rect.top
         
         self.display_surface.blit(hold_win, hold_win_rect.topleft)
@@ -390,7 +390,7 @@ class Ui:
         next_win_size = next_win.get_size()
         next_win_rect = pygame.Rect(0, 0, next_win_size[0], next_win_size[1])
 
-        next_win_rect.left = field_win_rect.right + EXTRA_SPACE
+        next_win_rect.left = field_win_rect.right + BETWEEN_SPACE
         next_win_rect.top = field_win_rect.top
         
         self.display_surface.blit(next_win, next_win_rect.topleft)
@@ -400,7 +400,7 @@ class Ui:
         score_board_win_size = score_board_win.get_size()
         score_board_rect = pygame.Rect(0, 0, score_board_win_size[0], score_board_win_size[1])
 
-        score_board_rect.left = field_win_rect.left - score_board_rect.width - EXTRA_SPACE
+        score_board_rect.left = field_win_rect.left - score_board_rect.width - BETWEEN_SPACE
         score_board_rect.top = field_win_rect.bottom - score_board_rect.height
 
         self.display_surface.blit(score_board_win, score_board_rect.topleft)
