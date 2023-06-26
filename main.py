@@ -2,6 +2,7 @@ import pygame
 from sys import exit
 from settings import *
 from tetris import Tetris
+from survival_classic import SurvivalClassic
 
 class Game:
     def __init__(self):
@@ -11,7 +12,7 @@ class Game:
         pygame.display.set_caption('MUTr')
         self.clock = pygame.time.Clock()
         pygame.mixer.set_num_channels(64)
-        self.tetris = Tetris(self)
+        self.tetris = SurvivalClassic(self)
 
     def run(self):
         while True:

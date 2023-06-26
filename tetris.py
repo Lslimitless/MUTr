@@ -5,11 +5,11 @@ from settings import *
 from tetromino import Tetromino
 from ui import Ui
 from support import *
+from particle import Particle
 
 class Tetris:
     def __init__(self, game):
         self.game = game
-        self.ui = Ui(self)
         self.map = np.zeros((FIELD_HEIGHT + ADD_FIELD_HEIGHT, FIELD_WIDTH))
         self.display_surface = pygame.display.get_surface()
         self.current_time = pygame.time.get_ticks()
@@ -17,12 +17,12 @@ class Tetris:
         self.hand = 'empty'
         self.hold = 'empty'
         self.next_queue = []
-        self.b2b = 0
-        self.combo = 0
         self.level = 1
         self.score = 0
         self.removed_lines = 0
-        self.gravity = CLASSIC_LEVEL_DATA[self.level]['g']  # G
+        self.b2b = 0
+        self.combo = 0
+        self.gravity = 1 / 60
         self.l_cnt = 0
         self.r_cnt = 0
         self.last_l_das = 0
@@ -36,9 +36,7 @@ class Tetris:
         self.soft_drop_time = 0
         self.soft_drop_last_time = 0
 
-        pygame.mixer.music.load('./assets/sound/bgm/halloweenParty.mp3')
-        pygame.mixer.music.set_volume(1/100*25)
-        pygame.mixer.music.play(-1)
+        self.particles = []
 
         self.move_sound = import_sound('./assets/sound/efc/handling/5.mp3', volume=20)
         self.drop_sound = import_sound('./assets/sound/efc/handling/5.mp3', volume=20)
@@ -101,28 +99,55 @@ class Tetris:
             self.spawn()        
 
     def score_count(self, clear_type):
-        if clear_type in CLEAR_TYPE:
-            clear_type_score = CLEAR_TYPE[clear_type]['score'] * (B2B_REWARD if self.b2b >= 2 else 1) # Clear
-            all_clear_score =(ALL_CLEAR_REWARD['b2b_quad'] if self.b2b >= 2 and clear_type == 'quad' else ALL_CLEAR_REWARD[clear_type]) if self.emptied_field() else 0 # All_Clear
-            combo_score = (self.combo-1) * COMBO_REWARD # Combo
-            
-            add_score = (clear_type_score + combo_score + all_clear_score) * self.level
-            # print(f'\n\
-            #       clearscore btb:{clear_type_score} ({clear_type_score * self.level})\n\
-            #       combo:{combo_score} ({combo_score*self.level})\n\
-            #       allclear:{all_clear_score} ({all_clear_score*self.level})\n\
-            #       total:{add_score}\n')
-            
-            self.score += add_score
-    
-    def set_level(self):
-        for level in CLASSIC_LEVEL_DATA:
-            if self.removed_lines >= CLASSIC_LEVEL_DATA[level]['total_lines'] \
-            and level > self.level:
-                
-                self.level = level
-                self.gravity = CLASSIC_LEVEL_DATA[level]['g']
+        pass
 
+    def set_level(self):
+        pass
+    
+    def combo_break(self):
+        if self.combo >= 4:
+            self.combo_break_sound.play()
+        self.combo = 0
+
+    def b2b_break(self):
+        self.b2b = 0
+    
+    def clear_reward(self, lines, cleartype):
+        tspin = cleartype[0]
+        type = cleartype[1]
+        
+        clear_type = tspin + type
+        if lines > 0:
+            # Combo Count
+            self.combo += 1
+            if self.combo >= 5: self.combo_5_sound.play()
+            elif self.combo >= 4: self.combo_4_sound.play()
+            elif self.combo >= 3: self.combo_3_sound.play()
+            elif self.combo >= 2: self.combo_2_sound.play()
+            
+            if clear_type in B2B_CLEAR_TYPE_LIST:
+                # B2B Count
+                self.b2b += 1
+                
+            else:
+                #B2B Reset
+                self.b2b_break()
+                
+        else:
+            # Combo Reset
+            self.combo_break()
+
+        # Clear Sound Efc
+        if lines > 0:
+            if self.emptied_field(): self.all_clear_sound.play()
+
+            if 'tspin' in clear_type: self.clear_tspin_sound.play()
+            elif clear_type == 'quad': self.clear_quad_sound.play()
+            else: self.clear_sound.play()
+
+        self.score_count(clear_type)
+        self.set_level()
+    
     def check_line(self):
         lines = []
         for row_index, rows in enumerate(self.map):
@@ -134,48 +159,22 @@ class Tetris:
             if cnt >= FIELD_WIDTH:
                 lines.append(row_index)
 
-        clear_type = self.clear_type(len(lines))
-
         self.removed_lines += len(lines)
 
         if len(lines) > 0:
-            # Combo Count
-            self.combo += 1
-            if self.combo >= 5: self.combo_5_sound.play()
-            elif self.combo >= 4: self.combo_4_sound.play()
-            elif self.combo >= 3: self.combo_3_sound.play()
-            elif self.combo >= 2: self.combo_2_sound.play()
-            
-            if clear_type in B2B_CLEAR_TYPE_LIST:
-                # B2B Count
-                self.b2b += 1
-            else:
-                #B2B Reset
-                self.b2b = 0
-            
             self.line_clear(lines)
 
-        else:
-            # Combo Reset
-            if self.combo >= 4:
-                self.combo_break_sound.play()
-            self.combo = 0
-
-        # Clear Sound Efc
-        if len(lines) > 0:
-            if self.emptied_field(): self.all_clear_sound.play()
-
-            if 'tspin' in clear_type: self.clear_tspin_sound.play()
-            elif clear_type == 'quad': self.clear_quad_sound.play()
-            else: self.clear_sound.play()
-
-        self.score_count(clear_type)
-
-        self.set_level()
-
-        self.info()
+        self.clear_reward(len(lines), self.clear_type(len(lines)))
 
     def line_clear(self, target_lines):
+        # Particle
+        for row_index in target_lines:
+            for col_index, col in enumerate(self.map[row_index]):
+                
+                self.particles.append(
+                    Particle(self, (col_index * PIECE_SIZE, row_index * PIECE_SIZE), 'removed_piece', str(int(col))))
+
+        # Delete
         for target_line in target_lines:
             self.map = np.delete(self.map, target_line, axis=0)
             self.map = np.insert(self.map, 0, 0, axis=0).reshape(FIELD_HEIGHT + ADD_FIELD_HEIGHT, FIELD_WIDTH)
@@ -191,9 +190,7 @@ class Tetris:
         elif lines == 4:
             type = 'quad'
 
-        type_full_name = self.tetromino.is_tspin() + type
-        print(f'Type:{type_full_name}')
-        return type_full_name
+        return self.tetromino.is_tspin(), type
             
     def all_clear(self):
         self.map = np.zeros_like(self.map)
@@ -364,10 +361,6 @@ class Tetris:
             self.last_r_das = self.current_time
             self.last_r_arr = self.current_time - ARR
             self.r_cnt = 0
-                
-    def info(self):
-        print(f'B2B:{self.b2b}')
-        print(f'Combo:{self.combo}')
     
     def run(self):
         self.current_time = pygame.time.get_ticks()
@@ -376,3 +369,9 @@ class Tetris:
         self.input()
         self.tetromino.gravity_down()
         self.ui.draw()
+
+        for particle in self.particles:
+            particle.run()
+            
+            if self.current_time - particle.create_time >= particle.life:
+                self.particles.remove(particle)

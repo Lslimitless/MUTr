@@ -4,10 +4,11 @@ from support import *
 from random import choice
 
 class Ui:
-    def __init__(self, tetris):
+    def __init__(self, tetris, mode):
         self.display_surface = pygame.display.get_surface()
         self.display_rect = self.display_surface.get_rect()
         self.tetris = tetris
+        self.mode = mode
 
         self.scale = 1
         
@@ -263,9 +264,23 @@ class Ui:
         value_text_size = self.score_board_value_font.size('0')
         text_line_space = 8
         value_char_limit = 9
-        info_list = [{'name': 'LEVEL', 'value': self.tetris.level},
-                     {'name': 'LINES', 'value': self.tetris.removed_lines},
-                     {'name': 'SCORE', 'value': self.tetris.score}]
+        if 'survival' in self.mode:
+            info_list = [{'name': 'LEVEL', 'value': self.tetris.level},
+                         {'name': 'LINES', 'value': self.tetris.removed_lines},
+                         {'name': 'SCORE', 'value': self.tetris.score}]
+            
+        elif 'blitz' in self.mode:
+            info_list = [{'name': 'TIMER', 'value': self.tetris.timer},
+                         {'name': 'LEVEL', 'value': self.tetris.level},
+                         {'name': 'LINES', 'value': self.tetris.removed_lines},
+                         {'name': 'SCORE', 'value': self.tetris.score}]
+
+        elif 'sprint' in self.mode:
+            info_list = [{'name': 'LINES', 'value': self.tetris.removed_lines}]
+
+        elif 'custom' in self.mode:
+            info_list = [{'name': 'LINES', 'value': self.tetris.removed_lines},
+                         {'name': 'SCORE', 'value': self.tetris.score}]
         
         # -------- Create Surface --------
 
@@ -342,6 +357,17 @@ class Ui:
 
         return fps_box
 
+    def particle(self, offset):
+        surface = pygame.Surface((self.display_rect.width, self.display_rect.height), pygame.SRCALPHA)
+        for particle in self.tetris.particles:
+            particle_img = pygame.transform.rotate(self.piece_img[particle.shape], particle.rotation)
+            particle_img.set_alpha(255/100 * particle.alpha)
+            particle_img_size = particle_img.get_size()
+            surface.blit(particle_img, (particle.pos[0] + offset[0] + EXTRA_SPACE + PIECE_SIZE // 2 - particle_img_size[0] // 2, \
+                                        particle.pos[1] + offset[1] + PIECE_SIZE // 2 - particle_img_size[1] // 2))
+            
+        return surface
+    
     def draw(self):
         # Ghost Piece Animation
         self.ghost_piece_img_index = (self.tetris.current_time - self.ghost_piece_last_time) / 100
@@ -407,3 +433,6 @@ class Ui:
         
         # Fps
         self.display_surface.blit(self.fps_info(), (2, 2))
+
+        # Particles
+        self.display_surface.blit(self.particle(field_full_win_rect.topleft), (0, 0))
