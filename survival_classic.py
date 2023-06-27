@@ -1,10 +1,6 @@
 import pygame
-import numpy as np
-import random
 from settings import *
-from tetromino import Tetromino
 from ui import Ui
-from support import *
 from tetris import Tetris
 
 class SurvivalClassic(Tetris):

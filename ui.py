@@ -15,8 +15,9 @@ class Ui:
         #--------------------------------------------------------------------------------------------
         
         self.bg_imgs = import_folder('dict', './assets/img/back_ground_img')
-        self.bg_img = choice(list(self.bg_imgs.values()))
-        # self.bg_img = self.bg_imgs['artwork']
+        
+        if mode == 'survival_classic': self.bg_img = self.bg_imgs['secret_room']
+        else: self.bg_img = pygame.Surface(self.display_rect.size)
 
         bg_surf = pygame.Surface(self.bg_img.get_size())
         bg_surf_size = bg_surf.get_size()
@@ -357,14 +358,23 @@ class Ui:
 
         return fps_box
 
-    def particle(self, offset):
-        surface = pygame.Surface((self.display_rect.width, self.display_rect.height), pygame.SRCALPHA)
+    def particle(self, field_offset):
+        surface = pygame.Surface((self.display_rect.size), pygame.SRCALPHA)
         for particle in self.tetris.particles:
             particle_img = pygame.transform.rotate(self.piece_img[particle.shape], particle.rotation)
             particle_img.set_alpha(255/100 * particle.alpha)
             particle_img_size = particle_img.get_size()
-            surface.blit(particle_img, (particle.pos[0] + offset[0] + EXTRA_SPACE + PIECE_SIZE // 2 - particle_img_size[0] // 2, \
-                                        particle.pos[1] + offset[1] + PIECE_SIZE // 2 - particle_img_size[1] // 2))
+ 
+            if particle.type == 'removed_piece':
+                pos_offset_x = field_offset[0] + EXTRA_SPACE + PIECE_SIZE // 2
+                pos_offset_y = field_offset[1] + PIECE_SIZE // 2
+
+            else:
+                pos_offset_x = 0
+                pos_offset_y = 0
+
+            surface.blit(particle_img, (particle.pos[0] + pos_offset_x - particle_img_size[0] // 2, \
+                                        particle.pos[1] + pos_offset_y - particle_img_size[1] // 2))
             
         return surface
     

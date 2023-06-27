@@ -3,7 +3,6 @@ import numpy as np
 import random
 from settings import *
 from tetromino import Tetromino
-from ui import Ui
 from support import *
 from particle import Particle
 
@@ -103,20 +102,9 @@ class Tetris:
 
     def set_level(self):
         pass
-    
-    def combo_break(self):
-        if self.combo >= 4:
-            self.combo_break_sound.play()
-        self.combo = 0
 
-    def b2b_break(self):
-        self.b2b = 0
-    
-    def clear_reward(self, lines, cleartype):
-        tspin = cleartype[0]
-        type = cleartype[1]
-        
-        clear_type = tspin + type
+    def clear_reward(self, lines, clear_type):
+        # Combo and B2B Count
         if lines > 0:
             # Combo Count
             self.combo += 1
@@ -130,49 +118,56 @@ class Tetris:
                 self.b2b += 1
                 
             else:
-                #B2B Reset
-                self.b2b_break()
+                # B2B Break
+                self.b2b = 0
                 
         else:
-            # Combo Reset
-            self.combo_break()
+            # Combo Break
+            if self.combo >= 4:
+                self.combo_break_sound.play()
+            self.combo = 0
 
         # Clear Sound Efc
         if lines > 0:
             if self.emptied_field(): self.all_clear_sound.play()
 
             if 'tspin' in clear_type: self.clear_tspin_sound.play()
-            elif clear_type == 'quad': self.clear_quad_sound.play()
+            elif 'quad' in clear_type: self.clear_quad_sound.play()
             else: self.clear_sound.play()
 
         self.score_count(clear_type)
         self.set_level()
-    
+
     def check_line(self):
-        lines = []
+        target_lines = []
         for row_index, rows in enumerate(self.map):
             cnt = 0
-            for col_index, col in enumerate(rows):
+            for col in rows:
                 if col > 0:
                     cnt += 1
             
             if cnt >= FIELD_WIDTH:
-                lines.append(row_index)
+                target_lines.append(row_index)
 
-        self.removed_lines += len(lines)
+        lines = len(target_lines)
 
-        if len(lines) > 0:
-            self.line_clear(lines)
+        self.removed_lines += lines
 
-        self.clear_reward(len(lines), self.clear_type(len(lines)))
+        clear_type = self.clear_type(lines)
+
+        # Line Clear
+        if lines > 0:
+            self.line_clear(target_lines)
+
+        self.clear_reward(lines, clear_type)
 
     def line_clear(self, target_lines):
         # Particle
         for row_index in target_lines:
-            for col_index, col in enumerate(self.map[row_index]):
-                
-                self.particles.append(
-                    Particle(self, (col_index * PIECE_SIZE, row_index * PIECE_SIZE), 'removed_piece', str(int(col))))
+            for col_index, col in enumerate(self.map[row_index]):                
+                if col > 0:
+                    self.particles.append(
+                        Particle(self, 'removed_piece', str(int(col)), (col_index * PIECE_SIZE, row_index * PIECE_SIZE)))
 
         # Delete
         for target_line in target_lines:
@@ -190,9 +185,15 @@ class Tetris:
         elif lines == 4:
             type = 'quad'
 
-        return self.tetromino.is_tspin(), type
+        return f'{self.tetromino.is_tspin()}{type}'
             
     def all_clear(self):
+        for row_index, rows in enumerate(self.map):
+            for col_index, col in enumerate(rows):
+                if col > 0:
+                    self.particles.append(
+                        Particle(self, 'removed_piece', str(int(col)), (col_index * PIECE_SIZE, row_index * PIECE_SIZE)))
+        
         self.map = np.zeros_like(self.map)
 
     def emptied_field(self):
@@ -239,6 +240,13 @@ class Tetris:
                 elif event.key == pygame.K_3:
                     self.all_clear()
                     self.next_queue = ['i']*1024
+                    self.hold = 'empty'
+                    self.hand = 'empty'
+                    self.spawn()
+
+                elif event.key == pygame.K_4:
+                    self.all_clear()
+                    self.next_queue = ['t']*1024
                     self.hold = 'empty'
                     self.hand = 'empty'
                     self.spawn()

@@ -1,7 +1,6 @@
 import pygame
 from sys import exit
 from settings import *
-from tetris import Tetris
 from survival_classic import SurvivalClassic
 
 class Game:

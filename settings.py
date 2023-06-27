@@ -1,6 +1,6 @@
-SCREEN_WIDTH = 720
+SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
-FPS = 0
+FPS = 60
 
 MASTER_VOLUME = 100
 BG_VOLUME = 100
@@ -13,6 +13,7 @@ SDF = 10     # 소프트 드랍 속도 5 ~ 40, inf
 NEXT_DISPLAY_LIMIT = 5     # 넥스트 큐 표시 개수
 GHOST_PIECE_DISPLAY = True # 고스트피스 표시 여부
 HOLDABLE_DISPLAY = True    # 홀드 불가 시 음영 여부
+CLEAR_PARTICLE_ALPHA = 50
 
 FIELD_WIDTH = 10
 FIELD_HEIGHT = 20
