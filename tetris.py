@@ -11,16 +11,27 @@ class Tetris:
         self.game = game
         self.map = np.zeros((FIELD_HEIGHT + ADD_FIELD_HEIGHT, FIELD_WIDTH))
         self.display_surface = pygame.display.get_surface()
+        self.display_rect = self.display_surface.get_rect()
         self.current_time = pygame.time.get_ticks()
+
         self.holdable = True
         self.hand = 'empty'
         self.hold = 'empty'
         self.next_queue = []
+
         self.level = 1
-        self.score = 0
         self.removed_lines = 0
+        self.score = 0
+
+        self.tspin = ''
+        self.clear_lines = ''
         self.b2b = 0
         self.combo = 0
+        self.tspin_alpha = 0
+        self.clear_lines_alpha = 0
+        self.b2b_alpha = 0
+        self.combo_alpha = 0
+
         self.gravity = 1 / 60
         self.l_cnt = 0
         self.r_cnt = 0
@@ -45,25 +56,48 @@ class Tetris:
 
         self.clear_sound = import_sound('./assets/sound/efc/clear/Select1.mp3', volume=20)
         self.clear_quad_sound = import_sound('./assets/sound/efc/clear/Selcet2.mp3',volume=40)
-        self.clear_tspin_sound = import_sound('./assets/sound/efc/clear/AchievmentComplete.mp3',volume=20)
-        self.all_clear_sound = import_sound('./assets/sound/efc/clear/GradeUp.mp3',volume=20)
+        self.clear_tspin_sound = import_sound('./assets/sound/efc/clear/card_magic.mp3',volume=20)
+        self.all_clear_sound = import_sound('./assets/sound/efc/clear/point.mp3',volume=40)
 
         self.combo_2_sound = import_sound('./assets/sound/efc/combo/EnchantStar2.mp3', volume=20)
         self.combo_3_sound = import_sound('./assets/sound/efc/combo/EnchantStar3.mp3', volume=20)
         self.combo_4_sound = import_sound('./assets/sound/efc/combo/EnchantStar4.mp3', volume=20)
         self.combo_5_sound = import_sound('./assets/sound/efc/combo/EnchantStar5.mp3', volume=20)
-        self.combo_break_sound = import_sound('./assets/sound/efc/combo/EnchantFail.mp3', volume=20)
+        self.combo_break_sound = import_sound('./assets/sound/efc/combo/SkillUseFail.mp3', volume=25)
+
+    def import_bg(self, bg_img):
+        bg_path = './assets/img/back_ground_img/'
+        bg_name = bg_img
+        
+        self.bg_img = pygame.image.load(bg_path + bg_name)
+            
+        bg_surf = pygame.Surface(self.bg_img.get_size())
+        bg_surf_size = bg_surf.get_size()
+        
+        # Vertical
+        if self.display_rect.height != bg_surf_size[1]:
+            bg_surf = pygame.Surface((bg_surf_size[0] * self.display_rect.height / bg_surf_size[1], \
+                                     self.display_rect.height))
+            bg_surf_size = bg_surf.get_size()
+
+            # Horizon
+            if self.display_rect.width > bg_surf_size[0]:
+                bg_surf = pygame.Surface((self.display_rect.width, \
+                                         bg_surf_size[1] * self.display_rect.width / bg_surf_size[0]))
+                bg_surf_size = bg_surf.get_size()
+
+        self.bg_img = pygame.transform.smoothscale(self.bg_img, bg_surf_size)
+        
+        self.bg_img_rect = self.bg_img.get_rect()
 
     def spawn(self):
         if self.hand == 'empty':
             self.pick_up()
-            
+        
+        x = 3
+        y = ADD_FIELD_HEIGHT - 3
         if self.hand == 'o':
-            x = 4
-            y = ADD_FIELD_HEIGHT - 3
-        else:
-            x = 3
-            y = ADD_FIELD_HEIGHT - 3
+            x += 1
 
         self.tetromino = Tetromino(self, (x, y))
         
@@ -104,10 +138,19 @@ class Tetris:
         pass
 
     def clear_reward(self, lines, clear_type):
+        # Tspin
+        if 'tspin' in clear_type:
+            self.tspin_alpha = 100
+
+        # Clear
+        if lines > 0:
+            self.clear_lines_alpha = 100
+
         # Combo and B2B Count
         if lines > 0:
             # Combo Count
             self.combo += 1
+            self.combo_alpha = 100
             if self.combo >= 5: self.combo_5_sound.play()
             elif self.combo >= 4: self.combo_4_sound.play()
             elif self.combo >= 3: self.combo_3_sound.play()
@@ -116,6 +159,7 @@ class Tetris:
             if clear_type in B2B_CLEAR_TYPE_LIST:
                 # B2B Count
                 self.b2b += 1
+                self.b2b_alpha = 100
                 
             else:
                 # B2B Break
@@ -132,7 +176,8 @@ class Tetris:
             if self.emptied_field(): self.all_clear_sound.play()
 
             if 'tspin' in clear_type: self.clear_tspin_sound.play()
-            elif 'quad' in clear_type: self.clear_quad_sound.play()
+
+            if 'quad' in clear_type: self.clear_quad_sound.play()
             else: self.clear_sound.play()
 
         self.score_count(clear_type)
@@ -175,17 +220,20 @@ class Tetris:
             self.map = np.insert(self.map, 0, 0, axis=0).reshape(FIELD_HEIGHT + ADD_FIELD_HEIGHT, FIELD_WIDTH)
 
     def clear_type(self, lines):
-        type = ''
         if lines == 1:
-            type = 'single'
+            self.clear_lines = 'single'
         elif lines == 2:
-            type = 'double'
+            self.clear_lines = 'double'
         elif lines == 3:
-            type = 'triple'
+            self.clear_lines = 'triple'
         elif lines == 4:
-            type = 'quad'
+            self.clear_lines = 'quad'
+        else:
+            self.clear_lines = ''
 
-        return f'{self.tetromino.is_tspin()}{type}'
+        self.tspin = self.tetromino.is_tspin()
+
+        return f'{self.tspin}{self.clear_lines}'
             
     def all_clear(self):
         for row_index, rows in enumerate(self.map):
@@ -374,12 +422,14 @@ class Tetris:
         self.current_time = pygame.time.get_ticks()
         if self.hand == 'empty':
             self.spawn()
+
         self.input()
         self.tetromino.gravity_down()
-        self.ui.draw()
 
         for particle in self.particles:
             particle.run()
             
             if self.current_time - particle.create_time >= particle.life:
                 self.particles.remove(particle)
+
+        self.display.draw()

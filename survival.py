@@ -1,13 +1,14 @@
 import pygame
 from settings import *
-from ui import Ui
+from display import Display
 from tetris import Tetris
 
-class SurvivalClassic(Tetris):
+class Survival(Tetris):
     def __init__(self, game):
         super().__init__(game)
-        
-        self.ui = Ui(self, 'survival_classic')
+        super().import_bg('secret_room.png')
+        self.mode = 'survival_classic'
+        self.display = Display(self, self.mode)
 
         pygame.mixer.music.load('./assets/sound/bgm/halloweenParty.mp3')
         pygame.mixer.music.set_volume(1/100*25)

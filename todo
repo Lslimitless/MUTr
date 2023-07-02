@@ -1,34 +1,44 @@
 ㅇ 클리어타입 표면 그리기 (T스핀 여부, 클리어타입, B2B, COMBO)
-ㅇ 드롭, T스핀, 올클리어, 콤보 중단 소리 바꾸기 -> 콤보중단 - 스킬쿨일때 나는 소리? (음량 조절)
 
 ㅇ 클리어 애니메이션 프레임에 상관없이 동일한 속도로 동작하게 하기
 ㅇ 필드 생성 애니메이션
 
-ㅇ 테트리스 기본 시스템 상속받기 (클래식 솔로, 클래식 멀티, 유니온 솔로, 유니온 멀티)
-    솔로 모드 : SURVIVAL(클래식, 유니온), SPRINT(클래식), BLITZ(클래식), ZEN(클래식, 유니온), CUSTOM(클래식, 유니온)
-    멀티 모드 : DUEL(클래식, 유니온)
+ㅇ 테트리스 기본 시스템 상속받기
 
 survival_class, survival_union, sprint_classic, blitz_classic, zen_classic, zen_union, custom_classic, custom_union,
 
 duel_classic, duel_union
 
-tetris
--> survival
--> sprint
--> zen
--> custom
-
 ㅇ 메인 화면
+    시작
+        솔로
+            SURVIVAL
+                CLASSIC
+                UNION
+            SPRINT
+                CLASSIC
+            BLITZ
+                CLASSIC
+            ZEN
+                CLASSIC
+                UNION
+
+        멀티
+            DUEL
+                CLASSIC
+                UNION
+
+    설정
+    게임 종료
 
 ㅇ 설정 (option 파일 생성, 읽기 & 쓰기)
     비디오 : 해상도, 전체화면, FPS
     소리 : 마스터, 배경, 효과음
     조작 : DAS, ARR, SDF
-    기타 : 고스트 피스, 홀드 불가 시 음영처리, 클리어 애니메이션
+    기타 : 고스트 피스, 홀드 불가 시 음영처리, 클리어 애니메이션 투명도
 
 ㅇ 소스 출처 기재
 ㅇ pyinstaller 배포
-
 
 
 
@@ -60,11 +70,12 @@ tetris
 
     줄 제거: Base.wz/Sound/UI/Select1
     4줄 제거: Base.wz/Sound/UI/Select2
-    T스핀+줄 제거: Base.wz/Sound/AchievementEff.img/AchievmentComplete
-    모든 줄 제거: Base.wz/Sound/AchievementEff.img/GradeUp
+    T스핀+줄 제거: Base.wz/Sound/MiniGame/oneCard/card_magic
+    모든 줄 제거: Base.wz/Sound/MiniGame.img/dinoRush/point
 
     콤보 효과음 2~5: Base.wz/Sound/UI/EnchantStar2~5
-        콤보 중단 효과음: Base.wz/Sound/UI/EnchantFail
+        콤보 중단 효과음: Base.wz/Sound/UI/SkillUseFail
+
 
 
     - 이미지 -
@@ -81,4 +92,79 @@ tetris
 
     - 폰트 -
     7 세그먼트 폰트 출처: http://www.toho-inc.co.kr/toho/board/bbs/board.php?bo_table=pro01_04&wr_id=1
-    Maplestory Bold: https://maplestory.nexon.com/Media/Font
+    Maplestory Bold: https://maplestory.nexon.com/Media/
+    
+
+
+
+ㅇ SSS 유니온
+
+SHAPE = {
+    'warrir': [
+    [0, 0, 0],
+    [9, 1, 1],
+    [1, 1, 0]],
+
+    'mage': [
+    [0, 1, 0],
+    [1, 10, 1],
+    [0, 1, 0]],
+    
+    'archer': [ 
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0],
+    [1, 1, 11, 1, 1],
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0]],
+
+    'thief': [
+    [0, 0, 1],
+    [1, 12, 1],
+    [0, 0, 1]],
+
+    'pirate': [
+    [0, 0, 0, 0],
+    [1, 1, 1, 0],
+    [0, 0, 13, 1],
+    [0, 0, 0, 0]],
+    
+    'zenon': [
+    [1, 0, 0],
+    [1, 14, 1],
+    [0, 0, 1]],
+
+    'maplem': [
+    [0, 0, 0, 0],
+    [1, 15, 1, 1],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]]}
+
+DISPLAY_SHAPE = {
+    'warrir': [
+    [9, 1, 1],
+    [1, 1, 0]],
+
+    'mage': [
+    [0, 1, 0],
+    [1, 10, 1],
+    [0, 1, 0]],
+    
+    'archer': [ 
+    [1, 1, 11, 1, 1]],
+
+    'thief': [
+    [0, 0, 1],
+    [1, 12, 1],
+    [0, 0, 1]],
+
+    'pirate': [
+    [1, 1, 1, 0],
+    [0, 0, 13, 1]],
+    
+    'zenon': [
+    [1, 0, 0],
+    [1, 14, 1],
+    [0, 0, 1]],
+
+    'maplem': [
+    [1, 15, 1, 1]]}
