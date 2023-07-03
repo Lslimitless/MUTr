@@ -14,6 +14,8 @@ class Particle:
         self.pos = pygame.math.Vector2(pos)
         self.life = life
         self.alpha = alpha
+
+        self.particleMove_last_time = self.tetris.current_time
         
         if self.type == 'removed_piece':
             self.alpha = CLEAR_PARTICLE_ALPHA
@@ -26,9 +28,16 @@ class Particle:
             self.rotation = 0
             self.rotation_speed = random.uniform(-5, 5)
 
+            self.gravity = 2
+
     def run(self):
+        get_time = self.tetris.current_time - self.particleMove_last_time
+        self.particleMove_last_time = self.tetris.current_time
+
         if self.type == 'removed_piece':
-            self.pos.x += self.dx
-            self.pos.y += self.dy
-            self.dy += 2
+            weight = get_time / (1000 / 60)
+
+            self.pos.x += self.dx * weight
+            self.pos.y += self.dy * weight
+            self.dy += self.gravity * weight
             self.rotation += self.rotation_speed

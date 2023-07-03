@@ -1,6 +1,9 @@
+import win32api
+import win32con
+
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
-FPS = 60
+FPS = win32api.EnumDisplaySettings(None, win32con.ENUM_CURRENT_SETTINGS).DisplayFrequency
 
 MASTER_VOLUME = 100
 BG_VOLUME = 100
@@ -13,7 +16,7 @@ SDF = 10     # 소프트 드랍 속도 5 ~ 40, inf
 NEXT_DISPLAY_LIMIT = 5     # 넥스트 큐 표시 개수
 GHOST_PIECE_DISPLAY = True # 고스트피스 표시 여부
 HOLDABLE_DISPLAY = True    # 홀드 불가 시 음영 여부
-CLEAR_PARTICLE_ALPHA = 50
+CLEAR_PARTICLE_ALPHA = 100
 
 FIELD_WIDTH = 10
 FIELD_HEIGHT = 20
@@ -205,3 +208,4 @@ CORNER_OFFSET = [
 
 B2B_CLEAR_TYPE_LIST = ['quad', 'tspin_single', 'tspin_double', 'tspin_triple', 'tspin_mini_single', 'tspin_mini_double']
 
+# def reSetting():

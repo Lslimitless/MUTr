@@ -6,13 +6,13 @@ from tetris import Tetris
 class Survival(Tetris):
     def __init__(self, game):
         super().__init__(game)
-        super().import_bg('secret_room.png')
+        self.bg_name = 'secret_room.png'
         self.mode = 'survival_classic'
-        self.display = Display(self, self.mode)
+        self.display = Display(self, self.mode, self.bg_name)
 
         pygame.mixer.music.load('./assets/sound/bgm/halloweenParty.mp3')
         pygame.mixer.music.set_volume(1/100*25)
-        pygame.mixer.music.play(-1)
+        # pygame.mixer.music.play(-1)
 
     def score_count(self, clear_type):
         if clear_type in CLEAR_TYPE:

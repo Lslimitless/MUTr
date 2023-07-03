@@ -1,10 +1,9 @@
 import pygame
 from settings import *
 from support import *
-from random import choice
 
 class Display:
-    def __init__(self, tetris, mode):
+    def __init__(self, tetris, mode, bg_img):
         self.display_surface = pygame.display.get_surface()
         self.display_rect = self.display_surface.get_rect()
         self.tetris = tetris
@@ -13,12 +12,11 @@ class Display:
         self.scale = 1
         
         #--------------------------------------------------------------------------------------------
-        
-        self.bg_imgs = import_folder('dict', './assets/img/back_ground_img')
-        
-        if mode == 'survival_classic': self.bg_img = self.bg_imgs['secret_room']
-        else: self.bg_img = pygame.Surface(self.display_rect.size)
 
+        bg_path = './assets/img/back_ground_img/'
+        
+        self.bg_img = pygame.image.load(bg_path + bg_img).convert()
+            
         bg_surf = pygame.Surface(self.bg_img.get_size())
         bg_surf_size = bg_surf.get_size()
         
@@ -51,7 +49,15 @@ class Display:
         self.score_board_head_font = pygame.font.Font('./assets/font/Maplestory Bold.ttf', 12)
         self.score_board_value_font = pygame.font.Font('./assets/font/7SEGLED_TTM000.ttf', 32)
 
-        self.clear_type_test_font = pygame.font.Font('./assets/font/Maplestory Bold.ttf', 40)
+        self.clear_type_large_font = pygame.font.Font('./assets/font/Maplestory Bold.ttf', 40)
+        self.clear_type_small_font = pygame.font.Font('./assets/font/Maplestory Bold.ttf', 20)
+
+        self.tspin_alpha = 0
+        self.lineClear_alpha = 0
+        self.b2b_alpha = 0
+        self.combo_alpha = 0
+
+        self.clear_info_last_time = self.tetris.current_time
         
     def window(self, cont, title='', note=''):
 
@@ -265,9 +271,9 @@ class Display:
 
             head_str = info_list[i]['name']
             bg_info_str = '8' * value_char_limit
-            info_str = (str(int(info % 10 ** value_char_limit)) \
-                if not (head_str == 'LEVEL' and info == list(CLASSIC_LEVEL_DATA.keys())[-1]) else 'MAX') \
-                if info < 10**value_char_limit else '9' * value_char_limit
+            info_str = 'MAX' if head_str == 'LEVEL' and info == list(CLASSIC_LEVEL_DATA.keys())[-1] \
+                  else '9' * value_char_limit if info >= 10**value_char_limit \
+                  else str(int(info))
     
             head_box = pygame.Surface((surf_rect.width, head_text_size[1]), pygame.SRCALPHA)
             bg_info_box = pygame.Surface((value_text_size[0] * len(bg_info_str), value_text_size[1]), pygame.SRCALPHA)
@@ -297,48 +303,64 @@ class Display:
 
         return surf
 
-    def clear_type_window(self):
-        text_size = self.clear_type_test_font.size('0')
+    def clear_info_window(self):
+        large_text_size = self.clear_type_large_font.size('0')
+        small_text_size = self.clear_type_small_font.size('0')
 
-        tspin_height = 30
+        tspin_str = 'T-SPIN' if self.tetris.tspin_display == 'tspin_' \
+            else 'T-SPIN mini' if self.tetris.tspin_display == 'tspin_mini_' \
+            else ''
+        lineClear_str = 'QUAD' if self.tetris.clear_lines_display == 'quad' \
+                else 'TRIPLE' if self.tetris.clear_lines_display == 'triple' \
+                else 'DOUBLE' if self.tetris.clear_lines_display == 'double' \
+                else 'SINGLE' if self.tetris.clear_lines_display == 'single' \
+                else ''
+        b2b_str = f'B2B x{str(self.tetris.b2b_display)}' if self.tetris.b2b_display > 0 else ''
+        combo_str = f'{str(self.tetris.combo_display)} COMBO'
+
+        tspin_box = pygame.Surface(self.clear_type_small_font.size(tspin_str), pygame.SRCALPHA)
+        lineClear_box = pygame.Surface(self.clear_type_large_font.size(lineClear_str), pygame.SRCALPHA)
+        b2b_box = pygame.Surface(self.clear_type_small_font.size(b2b_str), pygame.SRCALPHA)
+        combo_box = pygame.Surface(self.clear_type_large_font.size(combo_str), pygame.SRCALPHA)
+
+        tspin_box_rect = tspin_box.get_rect()
+        lineClear_box_rect = lineClear_box.get_rect()
+        b2b_box_rect = b2b_box.get_rect()
+        combo_box_rect = combo_box.get_rect()
+
+        tspin_text = self.clear_type_small_font.render(tspin_str, 1, pygame.Color(211, 0, 252))
+        lineClear_text = self.clear_type_large_font.render(lineClear_str, 1, pygame.Color(255, 255, 255))
+        b2b_text = self.clear_type_small_font.render(b2b_str, 1, pygame.Color(255, 213, 0))
+        combo_text = self.clear_type_large_font.render(combo_str, 1, pygame.Color(255, 255, 255))
+
+        tspin_box.blit(tspin_text, (0, 0))
+        lineClear_box.blit(lineClear_text, (0, 0))
+        b2b_box.blit(b2b_text, (0, 0))
+        combo_box.blit(combo_text, (0, 0))
+
+        tspin_box.set_alpha(255 / 100 * self.tspin_alpha)
+        lineClear_box.set_alpha(255 / 100 * self.lineClear_alpha)
+        b2b_box.set_alpha(255 / 100 * self.b2b_alpha)
+        combo_box.set_alpha(255 / 100 * self.combo_alpha)
+
+        surf_rect = pygame.Rect(0, 0, 0, 0)
+        if tspin_box_rect.width > surf_rect.width: surf_rect.width = tspin_box_rect.width
+        if lineClear_box_rect.width > surf_rect.width: surf_rect.width = lineClear_box_rect.width
+        if b2b_box_rect.width > surf_rect.width: surf_rect.width = b2b_box_rect.width
+        if combo_box_rect.width > surf_rect.width: surf_rect.width = combo_box_rect.width
+
+        surf_rect.height = tspin_box_rect.height + lineClear_box_rect.height + b2b_box_rect.height + combo_box_rect.height
         
-        surf = pygame.Surface((text_size[0] * value_char_limit, \
-                              (text_size[1] + text_size[1]) * 3 + (10) * 2), pygame.SRCALPHA)
-        surf_rect = surf.get_rect()
-        
-        # Text
-        for i, info in enumerate(info_list):
-            info = info_list[i]['value']
+        surf = pygame.Surface(surf_rect.size, pygame.SRCALPHA)
 
-            head_str = info_list[i]['name']
-            bg_info_str = '8' * value_char_limit
-            info_str = (str(int(info % 10 ** value_char_limit)) \
-                if not (head_str == 'LEVEL' and info == list(CLASSIC_LEVEL_DATA.keys())[-1]) else 'MAX') \
-                if info < 10**value_char_limit else '9' * value_char_limit
-    
-            head_box = pygame.Surface((surf_rect.width, head_text_size[1]), pygame.SRCALPHA)
-            bg_info_box = pygame.Surface((value_text_size[0] * len(bg_info_str), value_text_size[1]), pygame.SRCALPHA)
-            info_box = pygame.Surface((value_text_size[0] * len(info_str), value_text_size[1]), pygame.SRCALPHA)
-            
-            head_box_rect = head_box.get_rect()
-            bg_info_box_rect = bg_info_box.get_rect()
-            info_box_rect = info_box.get_rect()
-            
-            head_text = self.score_board_head_font.render(head_str, 1, pygame.Color(255, 255, 255))
-            bg_info_text = self.score_board_value_font.render(bg_info_str, 1, pygame.Color(255, 255, 255))
-            bg_info_text.set_alpha(255 / 100 * 25)
-            info_text = self.score_board_value_font.render(info_str, 1, pygame.Color(255, 255, 255))
-
-            head_box.blit(head_text, (0, 0))
-            bg_info_box.blit(bg_info_text, (0, 0))
-            info_box.blit(info_text, (0, 0))
-
-            surf.blit(head_box, (surf_rect.left, \
-                                (head_text_size[1] + value_text_size[1] + text_line_space) * i))
-            surf.blit(bg_info_box, (surf_rect.right - bg_info_box_rect.width, \
-                                    head_text_size[1] + (head_text_size[1] + value_text_size[1] + text_line_space) * i))
-            surf.blit(info_box, (surf_rect.right - info_box_rect.width, \
-                                 head_text_size[1] + (head_text_size[1] + value_text_size[1] + text_line_space) * i))
+        offsety = 0
+        surf.blit(tspin_box, (surf_rect.width - tspin_box_rect.width, offsety))
+        offsety += tspin_box_rect.height
+        surf.blit(lineClear_box, (surf_rect.width - lineClear_box_rect.width, offsety))
+        offsety += lineClear_box_rect.height
+        surf.blit(b2b_box, (surf_rect.width - b2b_box_rect.width, offsety))
+        offsety += b2b_box_rect.height
+        surf.blit(combo_box, (surf_rect.width - combo_box_rect.width, offsety))
 
         return surf
     
@@ -353,26 +375,6 @@ class Display:
         fps_box.blit(fps_text, (2, 0))
 
         return fps_box
-
-    def particle(self, field_offset):
-        surface = pygame.Surface((self.display_rect.size), pygame.SRCALPHA)
-        for particle in self.tetris.particles:
-            particle_img = pygame.transform.rotate(self.piece_img[particle.shape], particle.rotation)
-            particle_img.set_alpha(255/100 * particle.alpha)
-            particle_img_size = particle_img.get_size()
- 
-            if particle.type == 'removed_piece':
-                pos_offset_x = field_offset[0] + EXTRA_SPACE + PIECE_SIZE // 2
-                pos_offset_y = field_offset[1] + PIECE_SIZE // 2
-
-            else:
-                pos_offset_x = 0
-                pos_offset_y = 0
-
-            surface.blit(particle_img, (particle.pos[0] + pos_offset_x - particle_img_size[0] // 2, \
-                                        particle.pos[1] + pos_offset_y - particle_img_size[1] // 2))
-            
-        return surface
     
     def draw(self):
         # Ghost Piece Animation
@@ -380,6 +382,15 @@ class Display:
         if self.ghost_piece_img_index >= len(self.ghost_piece_img):
             self.ghost_piece_last_time = self.tetris.current_time
             self.ghost_piece_img_index = 0
+
+        # ClearInfo Alpha
+        get_time = self.tetris.current_time - self.clear_info_last_time
+        self.clear_info_last_time = self.tetris.current_time
+        weight = get_time / 10
+        if self.tspin_alpha > 0: self.tspin_alpha -= weight
+        if self.lineClear_alpha > 0: self.lineClear_alpha -= weight
+        if self.b2b_alpha > 0: self.b2b_alpha -= weight
+        if self.combo_alpha > 0: self.combo_alpha -= weight
 
         # mPos = pygame.mouse.get_pos()
 
@@ -429,17 +440,31 @@ class Display:
 
         self.display_surface.blit(score_board_win, score_board_rect.topleft)
         
-        # # Clear Type
-        # clear_type_win = self.clear_type_window()
-        # clear_type_rect = clear_type_win.get_rect()
+        # Clear Type
+        clear_info_win = self.clear_info_window()
+        clear_info_rect = clear_info_win.get_rect()
 
-        # clear_type_rect.left = field_win_rect.left - clear_type_rect.width - BETWEEN_SPACE
-        # clear_type_rect.top = hold_win_rect.bottom + BETWEEN_SPACE
+        clear_info_rect.left = field_win_rect.left - clear_info_rect.width - BETWEEN_SPACE
+        clear_info_rect.top = hold_win_rect.bottom + BETWEEN_SPACE
 
-        # self.display_surface.blit(clear_type_win, clear_type_rect.topleft)
+        self.display_surface.blit(clear_info_win, clear_info_rect.topleft)
 
-        # Fps
+        # Fps Box
         self.display_surface.blit(self.fps_info(), (2, 2))
 
         # Particles
-        self.display_surface.blit(self.particle(field_full_win_rect.topleft), (0, 0))
+        for particle in self.tetris.particles:
+            particle_img = pygame.transform.rotate(self.piece_img[particle.shape], particle.rotation)
+            particle_img.set_alpha(255/100 * particle.alpha)
+            particle_img_size = particle_img.get_size()
+ 
+            if particle.type == 'removed_piece':
+                pos_offset_x = field_full_win_rect.left + EXTRA_SPACE + PIECE_SIZE // 2
+                pos_offset_y = field_full_win_rect.top + PIECE_SIZE // 2
+
+            else:
+                pos_offset_x = 0
+                pos_offset_y = 0
+
+            self.display_surface.blit(particle_img, (particle.pos[0] + pos_offset_x - particle_img_size[0] // 2, \
+                                        particle.pos[1] + pos_offset_y - particle_img_size[1] // 2))

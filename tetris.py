@@ -5,6 +5,7 @@ from settings import *
 from tetromino import Tetromino
 from support import *
 from particle import Particle
+from display import Display
 
 class Tetris:
     def __init__(self, game):
@@ -27,10 +28,11 @@ class Tetris:
         self.clear_lines = ''
         self.b2b = 0
         self.combo = 0
-        self.tspin_alpha = 0
-        self.clear_lines_alpha = 0
-        self.b2b_alpha = 0
-        self.combo_alpha = 0
+
+        self.tspin_display = ''
+        self.clear_lines_display = ''
+        self.b2b_display = 0
+        self.combo_display = 0
 
         self.gravity = 1 / 60
         self.l_cnt = 0
@@ -64,31 +66,6 @@ class Tetris:
         self.combo_4_sound = import_sound('./assets/sound/efc/combo/EnchantStar4.mp3', volume=20)
         self.combo_5_sound = import_sound('./assets/sound/efc/combo/EnchantStar5.mp3', volume=20)
         self.combo_break_sound = import_sound('./assets/sound/efc/combo/SkillUseFail.mp3', volume=25)
-
-    def import_bg(self, bg_img):
-        bg_path = './assets/img/back_ground_img/'
-        bg_name = bg_img
-        
-        self.bg_img = pygame.image.load(bg_path + bg_name)
-            
-        bg_surf = pygame.Surface(self.bg_img.get_size())
-        bg_surf_size = bg_surf.get_size()
-        
-        # Vertical
-        if self.display_rect.height != bg_surf_size[1]:
-            bg_surf = pygame.Surface((bg_surf_size[0] * self.display_rect.height / bg_surf_size[1], \
-                                     self.display_rect.height))
-            bg_surf_size = bg_surf.get_size()
-
-            # Horizon
-            if self.display_rect.width > bg_surf_size[0]:
-                bg_surf = pygame.Surface((self.display_rect.width, \
-                                         bg_surf_size[1] * self.display_rect.width / bg_surf_size[0]))
-                bg_surf_size = bg_surf.get_size()
-
-        self.bg_img = pygame.transform.smoothscale(self.bg_img, bg_surf_size)
-        
-        self.bg_img_rect = self.bg_img.get_rect()
 
     def spawn(self):
         if self.hand == 'empty':
@@ -140,17 +117,20 @@ class Tetris:
     def clear_reward(self, lines, clear_type):
         # Tspin
         if 'tspin' in clear_type:
-            self.tspin_alpha = 100
+            self.tspin_display = self.tspin
+            self.display.tspin_alpha = 200
 
         # Clear
         if lines > 0:
-            self.clear_lines_alpha = 100
+            self.clear_lines_display = self.clear_lines
+            self.display.lineClear_alpha = 200
 
         # Combo and B2B Count
         if lines > 0:
             # Combo Count
             self.combo += 1
-            self.combo_alpha = 100
+            self.combo_display = self.combo
+            self.display.combo_alpha = 200
             if self.combo >= 5: self.combo_5_sound.play()
             elif self.combo >= 4: self.combo_4_sound.play()
             elif self.combo >= 3: self.combo_3_sound.play()
@@ -159,7 +139,8 @@ class Tetris:
             if clear_type in B2B_CLEAR_TYPE_LIST:
                 # B2B Count
                 self.b2b += 1
-                self.b2b_alpha = 100
+                self.b2b_display = self.b2b - 1
+                self.display.b2b_alpha = 200
                 
             else:
                 # B2B Break
@@ -305,6 +286,9 @@ class Tetris:
                     self.score = 999999999
                     self.set_level()
 
+                elif event.key == pygame.K_g:
+                    self.display = Display(self, self.mode, self.bg_name)
+                    
                 # Hard Drop
                 elif event.key == pygame.K_SPACE:
                     self.tetromino.hard_drop()
@@ -433,3 +417,4 @@ class Tetris:
                 self.particles.remove(particle)
 
         self.display.draw()
+        
