@@ -460,7 +460,7 @@ class Display:
  
             if particle.type == 'removed_piece':
                 pos_offset_x = field_full_win_rect.left + EXTRA_SPACE + PIECE_SIZE // 2
-                pos_offset_y = field_full_win_rect.top + PIECE_SIZE // 2
+                pos_offset_y = field_full_win_rect.top + EXTRA_SPACE + PIECE_SIZE // 2
 
             else:
                 pos_offset_x = 0

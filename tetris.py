@@ -415,6 +415,5 @@ class Tetris:
             
             if self.current_time - particle.create_time >= particle.life:
                 self.particles.remove(particle)
-
+                
         self.display.draw()
-        

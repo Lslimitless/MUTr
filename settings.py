@@ -1,7 +1,7 @@
 import win32api
 import win32con
 
-SCREEN_WIDTH = 1280
+SCREEN_WIDTH = 720
 SCREEN_HEIGHT = 720
 FPS = win32api.EnumDisplaySettings(None, win32con.ENUM_CURRENT_SETTINGS).DisplayFrequency
 

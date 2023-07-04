@@ -38,6 +38,8 @@ duel_classic, duel_union
     조작 : DAS, ARR, SDF
     기타 : 고스트 피스, 홀드 불가 시 음영처리, 클리어 애니메이션 투명도
 
+ㅇ 결과창
+
 ㅇ 소스 출처 기재
 ㅇ pyinstaller 배포
 
