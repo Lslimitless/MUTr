@@ -10,6 +10,13 @@ class Display:
         self.mode = mode
 
         self.scale = 1
+
+        if self.mode[1] == 'union':
+            self.shape = UNION_SHAPE
+            self.display_shape = DISPLAY_UNION_SHAPE
+        else:
+            self.shape = SHAPE
+            self.display_shape = DISPLAY_SHAPE
         
         #--------------------------------------------------------------------------------------------
 
@@ -33,6 +40,8 @@ class Display:
                 bg_surf_size = bg_surf.get_size()
 
         self.bg_img = pygame.transform.smoothscale(self.bg_img, bg_surf_size)
+
+        # self.bg_img.fill((255//2, 255//2, 255//2), special_flags=pygame.BLEND_SUB)
         
         self.bg_img_rect = self.bg_img.get_rect()
         
@@ -188,7 +197,7 @@ class Display:
 
         # Piece
         if self.tetris.hold != 'empty':
-            for row_index, rows in enumerate(DISPLAY_SHAPE[self.tetris.hold]):
+            for row_index, rows in enumerate(self.display_shape[self.tetris.hold]):
                 for col_index, col in enumerate(rows):
                     if col > 0:
                         img = pygame.Surface(self.piece_img[str(col)].get_size(), pygame.SRCALPHA)
@@ -204,7 +213,7 @@ class Display:
                             
                             surf_rect.centery \
                             + row_index * PIECE_SIZE \
-                            - len(DISPLAY_SHAPE[self.tetris.hold]) * PIECE_SIZE // 2 \
+                            - len(self.display_shape[self.tetris.hold]) * PIECE_SIZE // 2 \
                             - 2))
 
         surf = self.window(surf, title='HOLD')
@@ -219,7 +228,7 @@ class Display:
         # Piece
         for i in range(NEXT_DISPLAY_LIMIT):
             shape = self.tetris.next_queue[i]
-            for row_index, rows in enumerate(DISPLAY_SHAPE[shape]):
+            for row_index, rows in enumerate(self.display_shape[shape]):
                 for col_index, col in enumerate(rows):
                     if col > 0:
                         surf.blit(self.piece_img[str(col)], \
@@ -231,7 +240,7 @@ class Display:
                                   3 * PIECE_SIZE // 2 \
                                   + (i * ((3 * PIECE_SIZE) + EXTRA_SPACE)) \
                                   + row_index * PIECE_SIZE \
-                                  - len(DISPLAY_SHAPE[self.tetris.next_queue[i]]) * PIECE_SIZE // 2 \
+                                  - len(self.display_shape[self.tetris.next_queue[i]]) * PIECE_SIZE // 2 \
                                   - 2))
 
         surf = self.window(surf, title='NEXT')
@@ -243,21 +252,21 @@ class Display:
         value_text_size = self.score_board_value_font.size('0')
         text_line_space = 8
         value_char_limit = 9
-        if 'survival' in self.mode:
+        if self.mode[0] == 'survival':
             info_list = [{'name': 'LEVEL', 'value': self.tetris.level},
                          {'name': 'LINES', 'value': self.tetris.removed_lines},
                          {'name': 'SCORE', 'value': self.tetris.score}]
+
+        elif self.mode[0] == 'sprint':
+            info_list = [{'name': 'LINES', 'value': self.tetris.removed_lines}]
             
-        elif 'blitz' in self.mode:
+        elif self.mode[0] == 'blitz':
             info_list = [{'name': 'TIMER', 'value': self.tetris.timer},
                          {'name': 'LEVEL', 'value': self.tetris.level},
                          {'name': 'LINES', 'value': self.tetris.removed_lines},
                          {'name': 'SCORE', 'value': self.tetris.score}]
 
-        elif 'sprint' in self.mode:
-            info_list = [{'name': 'LINES', 'value': self.tetris.removed_lines}]
-
-        elif 'custom' in self.mode:
+        elif self.mode[0] == 'zen':
             info_list = [{'name': 'LINES', 'value': self.tetris.removed_lines},
                          {'name': 'SCORE', 'value': self.tetris.score}]
         
@@ -310,7 +319,8 @@ class Display:
         tspin_str = 'T-SPIN' if self.tetris.tspin_display == 'tspin_' \
             else 'T-SPIN mini' if self.tetris.tspin_display == 'tspin_mini_' \
             else ''
-        lineClear_str = 'QUAD' if self.tetris.clear_lines_display == 'quad' \
+        lineClear_str = 'QUAD+' if self.tetris.clear_lines_display == 'quad+' \
+                else 'QUAD' if self.tetris.clear_lines_display == 'quad' \
                 else 'TRIPLE' if self.tetris.clear_lines_display == 'triple' \
                 else 'DOUBLE' if self.tetris.clear_lines_display == 'double' \
                 else 'SINGLE' if self.tetris.clear_lines_display == 'single' \
@@ -450,7 +460,7 @@ class Display:
         self.display_surface.blit(clear_info_win, clear_info_rect.topleft)
 
         # Fps Box
-        self.display_surface.blit(self.fps_info(), (2, 2))
+        # self.display_surface.blit(self.fps_info(), (2, 2))
 
         # Particles
         for particle in self.tetris.particles:

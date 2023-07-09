@@ -14,6 +14,12 @@ class Tetris:
         self.display_surface = pygame.display.get_surface()
         self.display_rect = self.display_surface.get_rect()
         self.current_time = pygame.time.get_ticks()
+        self.start_time = pygame.time.get_ticks()
+
+        if self.mode[1] == 'union':
+            self.shape = UNION_SHAPE
+        else:
+            self.shape = SHAPE
 
         self.holdable = True
         self.hand = 'empty'
@@ -89,7 +95,7 @@ class Tetris:
         del self.next_queue[0]
     
     def next_put(self):
-        bag = list(SHAPE.keys())
+        bag = list(self.shape.keys())
             
         while len(bag) > 0:
             tetromino = random.choice(bag)
@@ -112,6 +118,9 @@ class Tetris:
         pass
 
     def set_level(self):
+        pass
+
+    def cleared(self):
         pass
 
     def clear_reward(self, lines, clear_type):
@@ -187,6 +196,8 @@ class Tetris:
 
         self.clear_reward(lines, clear_type)
 
+        self.cleared()
+
     def line_clear(self, target_lines):
         # Particle
         for row_index in target_lines:
@@ -209,6 +220,8 @@ class Tetris:
             self.clear_lines = 'triple'
         elif lines == 4:
             self.clear_lines = 'quad'
+        elif lines > 4:
+            self.clear_lines = 'quad+'
         else:
             self.clear_lines = ''
 
@@ -252,45 +265,57 @@ class Tetris:
         for event in events:
             if event.type == pygame.KEYDOWN:
                 # 디버깅 전용
-                if event.key == pygame.K_1:
-                    self.all_clear()
-                    self.next_queue = ['l', 'j', 'o', 'i', 't', 'z', 's', 'j', 't', 'i']
-                    self.hold = 'empty'
-                    self.hand = 'empty'
-                    self.spawn()
+                # if event.key == pygame.K_1:
+                #     self.all_clear()
+                #     self.next_queue = ['l', 'j', 'o', 'i', 't', 'z', 's', 'j', 't', 'i']
+                #     self.hold = 'empty'
+                #     self.holdable = True
+                #     self.hand = 'empty'
+                #     self.spawn()
 
-                elif event.key == pygame.K_2:
-                    self.all_clear()
-                    self.next_queue = ['l', 'j', 's', 'z', 'i', 't', 'o', 'j', 'l', 'i', 'o', 'z', 'j', 'o', 's'] + ['t']*100
-                    self.hold = 'empty'
-                    self.hand = 'empty'
-                    self.spawn()
+                # elif event.key == pygame.K_2:
+                #     self.all_clear()
+                #     self.next_queue = ['l', 'j', 's', 'z', 'i', 't', 'o', 'j', 'l', 'i', 'o', 'z', 'j', 'o', 's'] + ['t']*(2**16)
+                #     self.hold = 'empty'
+                #     self.holdable = True
+                #     self.hand = 'empty'
+                #     self.spawn()
 
-                elif event.key == pygame.K_3:
-                    self.all_clear()
-                    self.next_queue = ['i']*1024
-                    self.hold = 'empty'
-                    self.hand = 'empty'
-                    self.spawn()
+                # elif event.key == pygame.K_3:
+                #     self.all_clear()
+                #     self.next_queue = ['i']*(2**16)
+                #     self.hold = 'empty'
+                #     self.holdable = True
+                #     self.hand = 'empty'
+                #     self.spawn()
 
-                elif event.key == pygame.K_4:
-                    self.all_clear()
-                    self.next_queue = ['t']*1024
-                    self.hold = 'empty'
-                    self.hand = 'empty'
-                    self.spawn()
+                # elif event.key == pygame.K_4:
+                #     self.all_clear()
+                #     self.next_queue = ['t']*(2**16)
+                #     self.hold = 'empty'
+                #     self.holdable = True
+                #     self.hand = 'empty'
+                #     self.spawn()
+
+                # elif event.key == pygame.K_5:
+                #     self.all_clear()
+                #     self.next_queue = ['o']*(2**16)
+                #     self.hold = 'empty'
+                #     self.holdable = True
+                #     self.hand = 'empty'
+                #     self.spawn()
                 
-                elif event.key == pygame.K_t:
-                    # self.level = 1
-                    self.removed_lines = 999999999
-                    self.score = 999999999
-                    self.set_level()
+                # elif event.key == pygame.K_t:
+                #     # self.level = 1
+                #     self.removed_lines = 999999999
+                #     self.score = 999999999
+                #     self.set_level()
 
-                elif event.key == pygame.K_g:
-                    self.display = Display(self, self.mode, self.bg_name)
+                # elif event.key == pygame.K_g:
+                #     self.display = Display(self, self.mode, self.bg_name)
                     
                 # Hard Drop
-                elif event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE:
                     self.tetromino.hard_drop()
                 
                 # Clear
@@ -310,10 +335,16 @@ class Tetris:
                 elif event.key == pygame.K_z or event.key == pygame.K_LCTRL:
                     self.tetromino.rotate('acw')
 
-                # 180_Rotate
                 elif event.key == pygame.K_a:
-                    self.tetromino.rotate('180')
-
+                    if self.mode[1] == 'union':
+                        self.tetromino.rotate('lr')
+                    else:
+                        self.tetromino.rotate('180')
+                
+                elif event.key == pygame.K_s:
+                    if self.mode[1] == 'union':
+                        self.tetromino.rotate('ud')
+                    
         # Soft Drop
         if keys[pygame.K_DOWN]:
             if SDF != 0:
@@ -404,6 +435,7 @@ class Tetris:
     
     def run(self):
         self.current_time = pygame.time.get_ticks()
+
         if self.hand == 'empty':
             self.spawn()
 

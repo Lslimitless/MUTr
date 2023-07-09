@@ -8,7 +8,7 @@ class Tetromino:
         self.pos = pygame.math.Vector2(pos)
         self.rotate_code = ['0', 'R', '2', 'L']
         self.rotate_index = 0
-        self.piece_array = SHAPE[self.tetris.hand]
+        self.piece_array = self.tetris.shape[self.tetris.hand]
         self.drop_last_time = self.tetris.current_time
         self.rand_time = 0
         self.rand_last_time = self.tetris.current_time
@@ -65,12 +65,12 @@ class Tetromino:
             if self.rotate_index < 0:
                 self.rotate_index += 4
 
-        else:
+        elif direction == 'cw':
             self.rotate_index -= 3
             if self.rotate_index < 0:
                 self.rotate_index += 4
-
-        self.piece_array = np.rot90(SHAPE[self.tetris.hand], self.rotate_index * -1)
+        
+        self.piece_array = np.rot90(self.tetris.shape[self.tetris.hand], self.rotate_index * -1)
 
         # collition
         kick_table = I_KICK_TABLE if self.tetris.hand == 'i' else KICK_TABLE

@@ -4,14 +4,14 @@ from display import Display
 from tetris import Tetris
 
 class Survival(Tetris):
-    def __init__(self, game):
+    def __init__(self, game, tags):
+        self.mode = tags
         super().__init__(game)
-        self.bg_name = 'secret_room.png'
-        self.mode = 'survival_classic'
+        self.bg_name = 'horizon.png'
         self.display = Display(self, self.mode, self.bg_name)
 
-        pygame.mixer.music.load('./assets/sound/bgm/halloweenParty.mp3')
-        pygame.mixer.music.set_volume(1/100*25)
+        # pygame.mixer.music.load('./assets/sound/bgm/halloweenParty.mp3')
+        # pygame.mixer.music.set_volume(1/100*25)
         # pygame.mixer.music.play(-1)
 
     def score_count(self, clear_type):

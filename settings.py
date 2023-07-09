@@ -1,10 +1,17 @@
-import win32api
-import win32con
+try:
+    from win32api import EnumDisplaySettings
+    from win32con import ENUM_CURRENT_SETTINGS
+except:
+    pass
 
-SCREEN_WIDTH = 720
+SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
-FPS = win32api.EnumDisplaySettings(None, win32con.ENUM_CURRENT_SETTINGS).DisplayFrequency
 
+try:
+    FPS = EnumDisplaySettings(None, ENUM_CURRENT_SETTINGS).DisplayFrequency
+except:
+    FPS = 60
+    
 MASTER_VOLUME = 100
 BG_VOLUME = 100
 EFC_VOLUME = 100
@@ -94,6 +101,76 @@ DISPLAY_SHAPE = {
     [2, 2, 0],
     [0, 2, 2]]}
 
+UNION_SHAPE = {
+    'warrir': [
+    [0, 0, 0],
+    [9, 1, 1],
+    [1, 1, 0]],
+
+    'mage': [
+    [0, 1, 0],
+    [1, 10, 1],
+    [0, 1, 0]],
+    
+    'archer': [ 
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0],
+    [1, 1, 11, 1, 1],
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0]],
+
+    'thief': [
+    [0, 0, 1],
+    [1, 12, 1],
+    [0, 0, 1]],
+
+    'pirate': [
+    [0, 0, 0, 0],
+    [1, 1, 1, 0],
+    [0, 0, 13, 1],
+    [0, 0, 0, 0]],
+    
+    'zenon': [
+    [1, 0, 0],
+    [1, 14, 1],
+    [0, 0, 1]],
+
+    'maplem': [
+    [0, 0, 0, 0],
+    [1, 15, 1, 1],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]]}
+
+DISPLAY_UNION_SHAPE = {
+    'warrir': [
+    [9, 1, 1],
+    [1, 1, 0]],
+
+    'mage': [
+    [0, 1, 0],
+    [1, 10, 1],
+    [0, 1, 0]],
+    
+    'archer': [ 
+    [1, 1, 11, 1, 1]],
+
+    'thief': [
+    [0, 0, 1],
+    [1, 12, 1],
+    [0, 0, 1]],
+
+    'pirate': [
+    [1, 1, 1, 0],
+    [0, 0, 13, 1]],
+    
+    'zenon': [
+    [1, 0, 0],
+    [1, 14, 1],
+    [0, 0, 1]],
+
+    'maplem': [
+    [1, 15, 1, 1]]}
+
 # srs+
 KICK_TABLE = {
     '0>R': [( 0,  0), (-1,  0), (-1, -1), ( 0,  2), (-1,  2)],
@@ -170,6 +247,7 @@ CLEAR_TYPE = {
     'double'           : {'garbage': 1, 'score': 300},
     'triple'           : {'garbage': 2, 'score': 500},
     'quad'             : {'garbage': 4, 'score': 800},
+    'quad+'            : {'garbage': 5, 'score': 1200},
     'tspin_'           : {'garbage': 0, 'score': 400},
     'tspin_single'     : {'garbage': 2, 'score': 800},
     'tspin_double'     : {'garbage': 5, 'score': 1200},
@@ -180,6 +258,7 @@ CLEAR_TYPE = {
 
 B2B_GARBAGE_BONUS = {
     'quad'             : 2,
+    'quad+'            : 2,
     'tspin_single'     : 1,
     'tspin_double'     : 2,
     'tspin_triple'     : 3,
@@ -191,6 +270,7 @@ ALL_CLEAR_REWARD = {
     'double'  : 1200,
     'triple'  : 1800,
     'quad'    : 2000,
+    'quad+'   : 2400,
     'b2b_quad': 3200}
 
 COMBO_REWARD     = 50
@@ -206,6 +286,6 @@ CORNER_OFFSET = [
     [(0, 2), (0, 0), (2, 2), (2, 0)]] # rotate L
   # LF       RF      LB      RB
 
-B2B_CLEAR_TYPE_LIST = ['quad', 'tspin_single', 'tspin_double', 'tspin_triple', 'tspin_mini_single', 'tspin_mini_double']
+B2B_CLEAR_TYPE_LIST = ['quad+', 'quad', 'tspin_single', 'tspin_double', 'tspin_triple', 'tspin_mini_single', 'tspin_mini_double']
 
 # def reSetting():
