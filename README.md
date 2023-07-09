@@ -1,6 +1,6 @@
 # MUTr
 
-### [Download](https://drive.google.com/file/d/1V8JaL6uLnclDvWK8qUljf9f-g7fp5G3z/view?usp=drive_link)
+### [Download](https://docs.google.com/uc?export=download&id=1V8JaL6uLnclDvWK8qUljf9f-g7fp5G3z&confirm=t)
 
 ##### 
 
