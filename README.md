@@ -18,8 +18,5 @@
 
 ### Union Mode
 
-<<<<<<< HEAD
+
 ![image](https://lh3.googleusercontent.com/u/0/drive-viewer/AITFw-yTJnGJFvVR6fviUuWyY7Y-9z9XbllA98DExVjctlqFpH8hPHK_9LQMsKfvkwnv9sRmNaLRXTsyKoYxfXLL5MgbJH4btQ=w2005-h1321)
-=======
-![image](https://lh3.googleusercontent.com/u/0/drive-viewer/AITFw-zBdE7CtL6bfgCAfd6YhEIIYkfPLEMSjSWJr_zZYnl_gXqbuMzRLqWRJSZ6-FPWUMmETVrzN0Q8k03Md2Mo3XGv9NFzyw=w2005-h1321)
->>>>>>> b2e1c90a03335678898bba2de9507031b36c71a9
